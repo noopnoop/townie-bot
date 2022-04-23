@@ -1,11 +1,12 @@
 import fs from 'node:fs';
-import { Client, Collection, Intents, Interaction } from 'discord.js';
+import { Client, Collection, Intents, Interaction, Permissions, TextChannel } from 'discord.js';
 import Keyv from 'keyv';
+import { makeDirectoryMessage, Directory } from './directory';
 const { token } = require('../config.json');
 
 const client = new Client ({ intents: [Intents.FLAGS.GUILDS] });
 
-const directories = new Keyv('sqlite://../directories.sqlite');
+const directories = new Keyv('sqlite://directories.sqlite');
 
 // gather up a Collection of command handlers
 const commands : Collection<string, any> = new Collection();
@@ -43,7 +44,24 @@ client.on('interactionCreate', async (interaction : Interaction) => {
     }
   // handle setting a new directory
   } else if (interaction.isSelectMenu()) {
-
+    if (!interaction.memberPermissions?.has(Permissions.FLAGS.ADMINISTRATOR)) return;
+    const guild = interaction.guild?.id;
+    const channel = await client.channels.fetch(interaction.values[0]);
+    if (!channel || !guild) return;
+    if (channel.type !== 'GUILD_TEXT') return;
+    const oldDirectory = await directories.get(guild);
+    if (oldDirectory) {
+      const oldChannel = await client.channels.fetch(oldDirectory.channelId) 
+      if (oldChannel instanceof TextChannel) {
+        const oldMessage = await oldChannel.messages.fetch(oldDirectory.messageId)
+        await oldMessage.delete()
+      }
+    }
+    const directoryMessage = await channel.send(makeDirectoryMessage());
+    await directories.set(guild, {
+      messageId: directoryMessage.id,
+      channelId: channel.id
+    });
   } else {return;}
 });
 
