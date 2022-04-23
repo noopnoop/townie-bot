@@ -1,16 +1,33 @@
 import fs from 'node:fs';
 import { Client, Collection, Intents, Interaction, Permissions, TextChannel } from 'discord.js';
 import Keyv from 'keyv';
-import { makeDirectoryMessage } from './directory';
+import { deleteDirectoryMessages, makeDirectoryMessage, makeEmptyDirectoryMessage } from './directory';
+import { Directory, Game } from './types';
 const { token } = require('../config.json');
 
 const client = new Client ({ intents: [Intents.FLAGS.GUILDS] });
 
-const directories = new Keyv('sqlite://directories.sqlite');
+const directories : Keyv<Directory> = new Keyv('sqlite://directories.sqlite');
 
 // gather up a Collection of command handlers
 const commands : Collection<string, any> = new Collection();
 const commandFiles = fs.readdirSync('./lib/commands').filter((file:string) => file.endsWith('.ts'));
+
+const games : Map<String, Game> = new Map();
+games.set('1', {
+  max_players: 20,
+  current_players: 3,
+  name: 'test game #1',
+  creator: 'noops#6056',
+  players : ['ralph', 'walph', 'balph'],
+})
+games.set('2', {
+  max_players: 5,
+  current_players: 1,
+  name: 'test game #2',
+  creator: 'noops#6056',
+  players : ['sydney'],
+})
 
 for (const file of commandFiles) {
   const command = require(`./commands/${file}`);
@@ -45,33 +62,33 @@ client.on('interactionCreate', async (interaction : Interaction) => {
   // handle setting a new directory
   } else if (interaction.isSelectMenu()) {
     // validate the interaction
-    if (!interaction.memberPermissions?.has(Permissions.FLAGS.ADMINISTRATOR)) return;
+    if (!interaction.memberPermissions?.has(Permissions.FLAGS.ADMINISTRATOR)) {
+      await interaction.reply({ content: 'You must have administrator privileges to set a new directory.', ephemeral: true });
+      return;
+    }
     const guild = interaction.guild?.id;
-    const channel = await client.channels.fetch(interaction.values[0]);
+    const channel = await client.channels.fetch(interaction.values[0])
+      .catch(async error => {
+        await interaction.reply({ content: 'There was an error while executing this command.', ephemeral: true });
+        return; 
+    });
     if (!channel || !guild) return;
     if (channel.type !== 'GUILD_TEXT') return;
-    // delete the old directory, if it exists
+    // delete all our messages in the old directory.
     const oldDirectory = await directories.get(guild);
+    let deletionError = '';
     if (oldDirectory) {
-      try {
-        const oldChannel = await client.channels.fetch(oldDirectory.channelId);
-        if (oldChannel instanceof TextChannel) {
-          const oldMessage = await oldChannel.messages.fetch(oldDirectory.messageId);
-          await oldMessage.delete();
-        }
-      } catch (error) {
-        console.error(error);
-        await interaction.reply({ content: 'Something went wrong when deleting the old directory. You may have to delete it manually.', ephemeral: true });
-      }
+      deletionError = await deleteDirectoryMessages(client, oldDirectory);
     }
     // create the new directory
+    const newDirectory = {
+      messageIds: [],
+      channelId: channel.id,
+    }
     try {
-      const directoryMessage = await channel.send(makeDirectoryMessage());
-      await directories.set(guild, {
-        messageId: directoryMessage.id,
-        channelId: channel.id,
-      });
-      await interaction.reply({ content: 'Directory set successfully.', ephemeral: true });
+      await makeEmptyDirectoryMessage(interaction, client, newDirectory)
+      await directories.set(guild, newDirectory);
+      await interaction.reply({ content: 'Directory set successfully.' + deletionError, ephemeral: true });
     } catch (error) {
       console.error(error);
       await interaction.reply({ content: 'Something went wrong; no new directory created.', ephemeral: true });

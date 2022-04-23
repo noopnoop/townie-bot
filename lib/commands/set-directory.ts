@@ -33,7 +33,7 @@ module.exports = {
     if (interaction.memberPermissions?.has(Permissions.FLAGS.ADMINISTRATOR)) {
       const channelSelect = await makeChannelSelect(interaction);
       if (channelSelect) {
-        await interaction.reply({ components: [channelSelect], ephemeral: true, content: 'Choose a text channel to set as this server\'s mafia directory. Ideally, users apart from the Townie bot should not have permission to type in this channel.' });
+        await interaction.reply({ components: [channelSelect], ephemeral: true, content: 'Choose a text channel to set as this server\'s mafia directory. It is recommended that users apart from the Townie bot do not have permission to type in this channel.' });
       }
     } else {
       await interaction.reply({ ephemeral: true, content: 'You must be an admininstrator to use this command.' });
