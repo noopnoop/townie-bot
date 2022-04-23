@@ -15,14 +15,18 @@
   "dependencies": {
     "@discordjs/builders": "^0.13.0",
     "@discordjs/rest": "^0.4.1",
+    "@keyv/sqlite": "^3.5.0",
     "bufferutil": "^4.0.6",
     "discord-api-types": "^0.31.2",
     "discord.js": "^13.6.0",
     "erlpack": "github:discord/erlpack",
+    "keyv": "^4.2.2",
     "utf-8-validate": "^5.0.9",
     "zlib-sync": "^0.1.7"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.20.0",
+    "@typescript-eslint/parser": "^5.20.0",
     "eslint": "^8.13.0",
     "ts-node": "^10.7.0",
     "typescript": "^4.6.3"
