@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import { Client, Collection, Intents, Interaction, Permissions, TextChannel } from 'discord.js';
 import Keyv from 'keyv';
-import { makeDirectoryMessage, Directory } from './directory';
+import { makeDirectoryMessage } from './directory';
 const { token } = require('../config.json');
 
 const client = new Client ({ intents: [Intents.FLAGS.GUILDS] });
@@ -44,24 +44,38 @@ client.on('interactionCreate', async (interaction : Interaction) => {
     }
   // handle setting a new directory
   } else if (interaction.isSelectMenu()) {
+    // validate the interaction
     if (!interaction.memberPermissions?.has(Permissions.FLAGS.ADMINISTRATOR)) return;
     const guild = interaction.guild?.id;
     const channel = await client.channels.fetch(interaction.values[0]);
     if (!channel || !guild) return;
     if (channel.type !== 'GUILD_TEXT') return;
+    // delete the old directory, if it exists
     const oldDirectory = await directories.get(guild);
     if (oldDirectory) {
-      const oldChannel = await client.channels.fetch(oldDirectory.channelId) 
-      if (oldChannel instanceof TextChannel) {
-        const oldMessage = await oldChannel.messages.fetch(oldDirectory.messageId)
-        await oldMessage.delete()
+      try {
+        const oldChannel = await client.channels.fetch(oldDirectory.channelId);
+        if (oldChannel instanceof TextChannel) {
+          const oldMessage = await oldChannel.messages.fetch(oldDirectory.messageId);
+          await oldMessage.delete();
+        }
+      } catch (error) {
+        console.error(error);
+        await interaction.reply({ content: 'Something went wrong when deleting the old directory. You may have to delete it manually.', ephemeral: true });
       }
     }
-    const directoryMessage = await channel.send(makeDirectoryMessage());
-    await directories.set(guild, {
-      messageId: directoryMessage.id,
-      channelId: channel.id
-    });
+    // create the new directory
+    try {
+      const directoryMessage = await channel.send(makeDirectoryMessage());
+      await directories.set(guild, {
+        messageId: directoryMessage.id,
+        channelId: channel.id,
+      });
+      await interaction.reply({ content: 'Directory set successfully.', ephemeral: true });
+    } catch (error) {
+      console.error(error);
+      await interaction.reply({ content: 'Something went wrong; no new directory created.', ephemeral: true });
+    }
   } else {return;}
 });
 
