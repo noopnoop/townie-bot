@@ -2,8 +2,8 @@ import { SlashCommandBuilder } from '@discordjs/builders';
 import { Permissions, MessageActionRow, MessageSelectMenu, GuildMember, CommandInteraction } from 'discord.js';
 
 const getChannels = async (interaction : CommandInteraction) => {
-  if (interaction.member instanceof GuildMember) {
-    const channels = await interaction.member?.guild.channels.fetch();
+  if (interaction.guild) {
+    const channels = await interaction.guild.channels.fetch();
     return channels.filter(channel => channel.type === 'GUILD_TEXT');
   }
 };
