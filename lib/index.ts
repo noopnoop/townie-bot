@@ -7,6 +7,8 @@ const { token } = require('../config.json');
 
 const client = new Client ({ intents: [Intents.FLAGS.GUILDS] });
 
+// if you see a Keyv<Directory> in this bot- know that the keys are guild ids.
+// basically, this database maps guilds to their mafia game directories.
 const directories : Keyv<Directory> = new Keyv('sqlite://directories.sqlite');
 
 const _games : Map<string, GameListing> = new Map(); // working on this

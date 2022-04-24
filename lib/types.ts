@@ -2,6 +2,9 @@ import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, SelectMenuInteraction } from 'discord.js';
 import Keyv from 'keyv';
 
+// when you add the Townie to a server before you can do anything with it you have to specify a channel to act as a Directory
+// the Directory channel has a bunch of messages from Townie, one for each mafia game in progress in the guild, with a 'Join game' button and some info about the game
+// the Directory type contains the id of the channel and an array of ids, one for each message the bot has posted in the channel.
 export interface Directory {
   channelId : string,
   messageIds : string[],
@@ -20,8 +23,8 @@ export interface GameListing {
   players : string[]
 }
 
-export interface Executable<interactionType> {
-  execute(_interaction : interactionType, _directories? : Keyv<Directory>): Promise<void>
+export interface Executable<InteractionType> {
+  execute(_interaction : InteractionType, _directories? : Keyv<Directory>): Promise<void>
 }
 
 export interface Command extends Executable<CommandInteraction> {
