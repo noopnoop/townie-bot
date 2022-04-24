@@ -4,7 +4,9 @@ import { deleteDirectoryMessages, makeEmptyDirectoryMessage } from '../directory
 import { Directory } from '../types';
 
 module.exports = {
+
   name : 'set-directory',
+
   async execute (interaction : SelectMenuInteraction, directories : Keyv<Directory>) {
     // validate the interaction
     if (!interaction.memberPermissions || !interaction.memberPermissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
@@ -15,6 +17,7 @@ module.exports = {
     if (!guild) return;
     const channel = await guild.channels.fetch(interaction.values[0])
       .catch(async error => {
+        console.error(error);
         await interaction.reply({ content: 'There was an error while executing this command.', ephemeral: true });
         return;
       });
@@ -31,13 +34,8 @@ module.exports = {
       messageIds: [],
       channelId: channel.id,
     };
-    try {
-      await makeEmptyDirectoryMessage(guild, newDirectory);
-      await directories.set(guild.id, newDirectory);
-      await interaction.reply({ content: 'Directory set successfully.' + deletionError, ephemeral: true });
-    } catch (error) {
-      console.error(error);
-      await interaction.reply({ content: 'Something went wrong; no new directory created. Are you sure Townie has permission to text in that channel?', ephemeral: true });
-    }
+    await makeEmptyDirectoryMessage(guild, newDirectory);
+    await directories.set(guild.id, newDirectory);
+    await interaction.reply({ content: 'Directory set successfully.' + deletionError, ephemeral: true });
   },
 };

@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import { Client, Collection, Intents, Interaction, SelectMenuInteraction } from 'discord.js';
+import { Client, Collection, Intents, Interaction } from 'discord.js';
 import Keyv from 'keyv';
 import { Command, Directory, GameListing, MenuHandler } from './types';
 import { interactionHandler } from './handlers/interaction-handler';
@@ -8,9 +8,10 @@ const { token } = require('../config.json');
 const client = new Client ({ intents: [Intents.FLAGS.GUILDS] });
 
 const directories : Keyv<Directory> = new Keyv('sqlite://directories.sqlite');
-const games : Map<string, GameListing> = new Map();
 
-// gather up a Collection of command handlers
+const _games : Map<string, GameListing> = new Map(); // working on this
+
+// each file in the 'commands' folder represents a slash command
 const commands : Collection<string, Command> = new Collection();
 const commandFiles = fs.readdirSync('./lib/commands').filter((file:string) => file.endsWith('.ts'));
 
@@ -19,6 +20,7 @@ for (const file of commandFiles) {
   commands.set(command.data.name, command);
 }
 
+// each file in the 'menus' folder represents a select menu
 const menuHandlers : Collection<string, MenuHandler> = new Collection();
 const menuHandlerFiles = fs.readdirSync('./lib/menus').filter((file:string) => file.endsWith('.ts'));
 
@@ -39,10 +41,6 @@ for (const file of menuHandlerFiles) {
 //   }
 // }
 
-// handle interactions
-client.once('ready', (client) => console.log('Up and running'));
-
+client.once('ready', _client => console.log('Up and running'));
 client.on('interactionCreate', (interaction : Interaction) => interactionHandler(interaction, commands, menuHandlers, directories));
-// handle setting a new directory
-
 client.login(token);

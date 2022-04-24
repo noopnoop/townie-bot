@@ -21,7 +21,7 @@ export interface GameListing {
 }
 
 export interface Executable<interactionType> {
-  execute(interaction : interactionType, directories? : Keyv<Directory>): Promise<void>
+  execute(_interaction : interactionType, _directories? : Keyv<Directory>): Promise<void>
 }
 
 export interface Command extends Executable<CommandInteraction> {

@@ -1,5 +1,5 @@
-import { Client, Guild, MessageActionRow, MessageButton, MessageOptions, MessagePayload, MessageSelectMenu, TextChannel } from 'discord.js';
-import { GameListing, Directory } from './types';
+import { Guild, MessageOptions, MessagePayload } from 'discord.js';
+import { Directory } from './types';
 
 // makes a new message, updates the directory object to hold the new message id, and returns the message.
 export async function makeDirectoryMessage (guild : Guild, directory : Directory, message: string | MessagePayload | MessageOptions) {
@@ -9,21 +9,6 @@ export async function makeDirectoryMessage (guild : Guild, directory : Directory
     directory.messageIds.push(newMessage.id);
     return newMessage;
   }
-}
-
-// MOVE THIS TO GAME-LISTING / REFACTOR
-export async function makeGameMessage (guild : Guild, directory : Directory, game : GameListing) {
-  const button = new MessageActionRow()
-    .addComponents(
-      new MessageButton()
-        .setCustomId('join-game-' + game.creator)
-        .setLabel('Join game')
-        .setStyle('SUCCESS'),
-    );
-  makeDirectoryMessage(guild, directory, {
-    content: game.name + '\nCreated by ' + game.creator + '\nPlayers: ' + game.current_players + '/' + game.max_players,
-    components: [button],
-  });
 }
 
 export async function makeEmptyDirectoryMessage (guild : Guild, directory : Directory) {

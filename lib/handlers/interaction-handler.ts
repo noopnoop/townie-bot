@@ -2,6 +2,7 @@ import { Collection, CommandInteraction, Interaction, SelectMenuInteraction } fr
 import Keyv from 'keyv';
 import { Command, Directory, Executable, MenuHandler } from '../types';
 
+// this function just matches an interaction to the right type of handler
 export async function interactionHandler (interaction : Interaction, commands : Collection<string, Command>, menuHandlers : Collection<string, MenuHandler>, directories:Keyv<Directory>) {
   if (interaction.isCommand()) {
     await commandHandler(interaction, commands);
@@ -10,7 +11,11 @@ export async function interactionHandler (interaction : Interaction, commands : 
   }
 }
 
-async function executablesHandler<i> (interaction : i, executables : Collection<string, Executable<i>>, indexFunction : (interaction : i) => string, errorHandler : (error : unknown) => Promise<void>, directories?:Keyv<Directory>) {
+// interacting with menus, buttons, slash commands, etc. produces similar but slightly different 'interactions' in the discord.js library
+// we use this function to specify how to deal with a specific type of interaction
+// in particular, each type of interaction has a slightly different way of getting the 'name' of the interaction, for which we provide an indexFunction
+// each type of interaction also has a slightly different way of error handling, for which we provide an errorHandler
+async function executablesHandler<i> (interaction : i, executables : Collection<string, Executable<i>>, indexFunction : (_interaction : i) => string, errorHandler : (_error : unknown) => Promise<void>, directories?:Keyv<Directory>) {
   const command = executables.get(indexFunction(interaction));
   if (!command) return;
   await command.execute(interaction, directories)

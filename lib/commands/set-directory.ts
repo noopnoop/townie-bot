@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { Permissions, MessageActionRow, MessageSelectMenu, GuildMember, CommandInteraction } from 'discord.js';
+import { Permissions, MessageActionRow, MessageSelectMenu, CommandInteraction } from 'discord.js';
 
 const getChannels = async (interaction : CommandInteraction) => {
   if (interaction.guild) {
@@ -26,9 +26,11 @@ const makeChannelSelect = async (interaction : CommandInteraction) => {
 };
 
 module.exports = {
+
   data: new SlashCommandBuilder()
     .setName('set-directory')
     .setDescription('Designate a channel to be a directory for mafia games.'),
+
   async execute (interaction : CommandInteraction) {
     if (interaction.memberPermissions?.has(Permissions.FLAGS.ADMINISTRATOR)) {
       const channelSelect = await makeChannelSelect(interaction);
@@ -39,4 +41,5 @@ module.exports = {
       await interaction.reply({ ephemeral: true, content: 'You must be an admininstrator to use this command.' });
     }
   },
+
 };
