@@ -7,8 +7,8 @@ export async function makeGameMessage (guild : Guild, directory : Directory, gam
   const button = new MessageActionRow()
     .addComponents(
       new MessageButton()
-        .setCustomId('join-game' + game.creator)
-        .setLabel('Join game')
+        .setCustomId('join-game')
+        .setLabel('Join Game')
         .setStyle('SUCCESS'),
     );
   makeDirectoryMessage(guild, directory, {
