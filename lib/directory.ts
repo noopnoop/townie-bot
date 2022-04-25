@@ -9,7 +9,7 @@ export async function makeDirectoryMessage (guild : Guild, directory : Directory
     directory.messageIds.push(newMessage.id);
     return newMessage;
   } else {
-    throw new Error('couldnt make directory: invalid channel')
+    throw new Error('couldnt make directory: invalid channel');
   }
 }
 
@@ -30,10 +30,11 @@ export async function deleteDirectoryMessages (guild : Guild, directory : Direct
         const oldMessage = await oldChannel.messages.fetch(messageId);
         await oldMessage.delete();
       }
-    } else throw new Error('couldnt delete directory: invalid channel')
+    } else {throw new Error('couldnt delete directory: invalid channel');}
   } catch (error) {
     // if any of those fetches fail it probably means the old directory channel / messages got deleted, which is fine
     deletionError = ' However, something went wrong when deleting the messages created by this bot in the old directory. This likely means they were already deleted somehow, but you might have to go back and delete them manually.';
   }
+  directory.messageIds = [];
   return deletionError;
 }

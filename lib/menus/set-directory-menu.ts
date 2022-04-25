@@ -10,13 +10,13 @@ async function validateInteraction (interaction : SelectMenuInteraction) {
   if (!interaction.memberPermissions?.has(Permissions.FLAGS.ADMINISTRATOR)) {
     await interaction.reply({ content: 'You must have administrator privileges to set a new directory.', ephemeral: true });
     throw new Error('bad set-directory menu interaction: not an administrator');
-  } 
+  }
   const guild = interaction.guild;
   if (!guild) throw new Error('bad set-directory menu interaction: no guild');
   const selectedChannel = interaction.values[0];
-  const channel = await guild.channels.fetch(selectedChannel)
+  const channel = await guild.channels.fetch(selectedChannel);
   if (!channel || channel.type !== 'GUILD_TEXT') throw new Error('bad set-directory menu interaction: invalid channel');
-  return {guild, channel};
+  return { guild, channel };
 }
 
 module.exports = {
@@ -24,7 +24,7 @@ module.exports = {
   name : 'set-directory',
 
   async execute (interaction : SelectMenuInteraction, directories : Keyv<Directory>) {
-    const {guild, channel} = await validateInteraction(interaction);
+    const { guild, channel } = await validateInteraction(interaction);
     // delete all our messages in the old directory.
     const oldDirectory = await directories.get(guild.id);
     let deletionError = '';

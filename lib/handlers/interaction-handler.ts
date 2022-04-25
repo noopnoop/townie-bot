@@ -4,10 +4,10 @@ import { Command, Directory, Executable, MenuHandler } from '../types';
 
 // this function just matches an interaction to the right type of handler
 export async function interactionHandler (
-  interaction : Interaction, 
-  commands : Collection<string, Command>, 
-  menuHandlers : Collection<string, MenuHandler>, 
-  directories:Keyv<Directory>
+  interaction : Interaction,
+  commands : Collection<string, Command>,
+  menuHandlers : Collection<string, MenuHandler>,
+  directories:Keyv<Directory>,
 ) {
   if (interaction.isCommand()) {
     await commandHandler(interaction, commands);
@@ -21,11 +21,11 @@ export async function interactionHandler (
 // in particular, each type of interaction has a slightly different way of getting the 'name' of the interaction, for which we provide an indexFunction
 // each type of interaction also has a slightly different way of error handling, for which we provide an errorHandler
 async function executablesHandler<InteractionType> (
-  interaction : InteractionType, 
-  executables : Collection<string, Executable<InteractionType>>, 
-  indexFunction : (_interaction : InteractionType) => string, 
-  errorHandler : (_error : unknown) => Promise<void>, 
-  directories? : Keyv<Directory>
+  interaction : InteractionType,
+  executables : Collection<string, Executable<InteractionType>>,
+  indexFunction : (_interaction : InteractionType) => string,
+  errorHandler : (_error : unknown) => Promise<void>,
+  directories? : Keyv<Directory>,
 ) {
   const command = executables.get(indexFunction(interaction));
   if (!command) return;

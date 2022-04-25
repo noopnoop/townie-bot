@@ -6,6 +6,8 @@ const getChannels = async (interaction : CommandInteraction) => {
     const channels = await interaction.guild.channels.fetch();
     return channels.filter(channel => channel.type === 'GUILD_TEXT');
   }
+  interaction.reply('You can only use this command in a guild.');
+  throw new Error('bad set-directory interaction: not in a guild');
 };
 
 const makeChannelSelect = async (interaction : CommandInteraction) => {
