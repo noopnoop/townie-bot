@@ -57,7 +57,7 @@ describe('Deleting the messages in a directory', () => {
     await deleteDirectoryMessages(guild, directory);
     expect(message.delete).toBeCalled();
   });
-  it('Shouldn\'t work for non-text channels', async () => {
+  it('Returns an error message for non-text channels', async () => {
     await expect(deleteDirectoryMessages(badGuild, directory)).resolves.not.toBe('');
   });
 });
