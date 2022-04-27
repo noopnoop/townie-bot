@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
     "start": "ts-node ./lib/index.ts",
-    "deploy-commands": "node ./lib/deploy-commands.js",
+    "deploy-commands": "ts-node ./lib/deploy-commands.ts",
     "lint:fix": "eslint --fix ./lib ; eslint --fix ./tests",
     "lint": "eslint ./lib ; eslint ./tests",
     "coverage": "jest --coverage"

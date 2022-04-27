@@ -3,7 +3,7 @@ import { Client, Collection, Intents, Interaction } from 'discord.js';
 import Keyv from 'keyv';
 import { Command, Directory, GameListing, MenuHandler } from './types';
 import { interactionHandler } from './handlers/interaction-handler';
-const { token } = require('../config.json');
+const { token } = require('./config.json');
 
 const client = new Client ({ intents: [Intents.FLAGS.GUILDS] });
 

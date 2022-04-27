@@ -10,7 +10,7 @@ export async function interactionHandler (
   directories:Keyv<Directory>,
 ) {
   if (interaction.isCommand()) {
-    await commandHandler(interaction, commands);
+    await commandHandler(interaction, commands, directories);
   } else if (interaction.isSelectMenu()) {
     await selectMenuHandler(interaction, menuHandlers, directories);
   }
@@ -33,12 +33,13 @@ async function executablesHandler<InteractionType> (
     .catch(errorHandler);
 }
 
-async function commandHandler (interaction : CommandInteraction, commands : Collection<string, Command>) {
+async function commandHandler (interaction : CommandInteraction, commands : Collection<string, Command>, directories : Keyv<Directory>) {
   await executablesHandler(
     interaction,
     commands,
     (i : CommandInteraction) => i.commandName,
-    async (err : unknown) => {console.error(err); await interaction.reply({ content: 'Something went wrong.', ephemeral: true }).catch();},
+    defaultErrorHandler(interaction),
+    directories,
   );
 }
 
@@ -47,7 +48,18 @@ async function selectMenuHandler (interaction : SelectMenuInteraction, menuHandl
     interaction,
     menuHandlers,
     (i : SelectMenuInteraction) => i.customId,
-    async (err : unknown) => {console.error(err); await interaction.reply({ content: 'Something went wrong.', ephemeral: true }).catch();},
+    defaultErrorHandler(interaction),
     directories,
   );
+}
+
+function defaultErrorHandler (interaction : CommandInteraction | SelectMenuInteraction) {
+  return async (error : unknown) => {
+    console.error(error);
+    await interaction.reply({
+      content: 'Something went wrong.', 
+      ephemeral: true}
+    )
+      .catch(() => {return;});
+    }
 }
