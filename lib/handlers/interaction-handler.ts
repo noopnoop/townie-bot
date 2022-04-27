@@ -57,9 +57,9 @@ function defaultErrorHandler (interaction : CommandInteraction | SelectMenuInter
   return async (error : unknown) => {
     console.error(error);
     await interaction.reply({
-      content: 'Something went wrong.', 
-      ephemeral: true}
+      content: 'Something went wrong.',
+      ephemeral: true },
     )
       .catch(() => {return;});
-    }
+  };
 }

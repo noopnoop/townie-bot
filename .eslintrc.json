@@ -36,6 +36,7 @@
 		"no-trailing-spaces": ["error"],
     "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": [1, { "varsIgnorePattern": "^_", "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/no-var-requires": 1,
 		"no-var": "error",
 		"object-curly-spacing": ["error", "always"],
 		"prefer-const": "error",

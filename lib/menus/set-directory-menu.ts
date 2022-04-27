@@ -1,6 +1,6 @@
 import { SelectMenuInteraction, Permissions } from 'discord.js';
 import Keyv from 'keyv';
-import { deleteDirectoryMessages, makeEmptyDirectoryMessage } from '../directory';
+import { deleteDirectoryMessages, getDirectory, makeEmptyDirectoryMessage } from '../directory';
 import { Directory } from '../types';
 
 // makes sure the interaction corresponds to a valid guild and channel.
@@ -26,18 +26,19 @@ module.exports = {
   async execute (interaction : SelectMenuInteraction, directories : Keyv<Directory>) {
     const { guild, channel } = await validateInteraction(interaction);
     // delete all our messages in the old directory.
-    const oldDirectory = await directories.get(guild.id);
+    const oldDirectory = await getDirectory(guild, directories)
+      .catch();
     let deletionError = '';
     if (oldDirectory) {
-      deletionError = await deleteDirectoryMessages(guild, oldDirectory);
+      deletionError = await deleteDirectoryMessages(guild, directories);
     }
     // create the new directory
     const newDirectory = {
       messageIds: [],
       channelId: channel.id,
     };
-    await makeEmptyDirectoryMessage(guild, newDirectory);
     await directories.set(guild.id, newDirectory);
+    await makeEmptyDirectoryMessage(guild, directories);
     await interaction.reply({ content: 'Directory set successfully.' + deletionError, ephemeral: true });
   },
 };

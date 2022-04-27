@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction } from 'discord.js';
 import Keyv from 'keyv';
+import { getDirectory } from '../directory';
 import { makeGameMessage } from '../game-listing';
 import { Directory, GameListing } from '../types';
 
@@ -24,20 +25,20 @@ function makeGameListing (players: number, gameName : string, creator: string) :
 async function validateInteraction (interaction : CommandInteraction, directories : Keyv<Directory>) {
   const guild = interaction.guild;
   if (!guild) {
-    await interaction.reply('This command may only be used in a guild.');
+    await interaction.reply({ ephemeral: true, content: 'This command may only be used in a guild.' });
     throw new Error('bad new-game interaction: not in a guild');
   }
-  const directory = await directories.get(interaction.guild.id);
-  if (!directory) {
-    await interaction.reply('You need to designate a channel to be a directory using the "/set-directory" command before you can make a game.');
-    throw new Error('bad new-game interaction: no directory');
-  }
+  await getDirectory(interaction.guild, directories)
+    .catch(async () => {
+      await interaction.reply({ ephemeral: true, content: 'You need to designate a channel to be a directory using the "/set-directory" command before you can make a game.' });
+      throw new Error('bad new-game interaction: no directory');
+    });
   let players = interaction.options.get('players')?.value;
   if (!(typeof players === 'number')
     || Math.floor(players) < 5
     || Math.floor(players) > 20
   ) {
-    await interaction.reply('You must specify how many players will be in a game. You can have between 5 and 20 players.');
+    await interaction.reply({ ephemeral: true, content: 'You must specify how many players will be in a game. You can have between 5 and 20 players.' });
     throw new Error ('bad new-game interaction: bad number of players');
   }
   players = Math.floor(players);
@@ -46,14 +47,14 @@ async function validateInteraction (interaction : CommandInteraction, directorie
   || gameName.length < 5
   || gameName.length > 30
   ) {
-    await interaction.reply('You must give your game a name. It may be between 5 and 30 characters in length.');
+    await interaction.reply({ ephemeral: true, content: 'You must give your game a name. It may be between 5 and 30 characters in length.' });
     throw new Error ('bad new-game interaction: bad number of players');
   }
   const creator = interaction.member?.user.username;
   if (!creator) {
     throw new Error ('bad new-game interaction: invalid creator');
   }
-  return { guild, directory, players, gameName, creator };
+  return { guild, players, gameName, creator };
 }
 
 module.exports = {
@@ -74,9 +75,9 @@ module.exports = {
     ),
 
   async execute (interaction : CommandInteraction, directories : Keyv<Directory>) {
-    const { guild, directory, players, gameName, creator } = await validateInteraction(interaction, directories);
+    const { guild, players, gameName, creator } = await validateInteraction(interaction, directories);
     const game = makeGameListing(players, gameName, creator);
-    makeGameMessage(guild, directory, game);
+    makeGameMessage(guild, directories, game);
   },
 
 };
