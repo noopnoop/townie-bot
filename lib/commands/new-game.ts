@@ -2,7 +2,7 @@ import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction } from 'discord.js';
 import Keyv from 'keyv';
 import { getDirectory } from '../directory';
-import { makeGameMessage } from '../game-listing';
+import { postGameMessage } from '../game-listing';
 import { Directory, GameListing } from '../types';
 
 function makeGameListing (players: number, gameName : string, creator: string) : GameListing {
@@ -77,7 +77,8 @@ module.exports = {
   async execute (interaction : CommandInteraction, directories : Keyv<Directory>) {
     const { guild, players, gameName, creator } = await validateInteraction(interaction, directories);
     const game = makeGameListing(players, gameName, creator);
-    makeGameMessage(guild, directories, game);
+    await postGameMessage(guild, directories, game);
+    await interaction.reply({ephemeral: true, content: `New game "${gameName}" created successfully.`})
   },
 
 };
