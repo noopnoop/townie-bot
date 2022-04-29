@@ -10,7 +10,7 @@ export async function getDirectory (guild : Guild, directories : Keyv<Directory>
 }
 
 // makes a new message, updates the directory object to hold the new message id, and returns the message.
-export async function makeDirectoryMessage (guild : Guild, directories : Keyv<Directory>, message: string | MessagePayload | MessageOptions) {
+export async function postDirectoryMessage (guild : Guild, directories : Keyv<Directory>, message: string | MessagePayload | MessageOptions) {
   const directory = await getDirectory(guild, directories);
   const channel = await guild.channels.fetch(directory.channelId);
   if (channel && channel.type === 'GUILD_TEXT') {
@@ -23,8 +23,8 @@ export async function makeDirectoryMessage (guild : Guild, directories : Keyv<Di
   }
 }
 
-export async function makeEmptyDirectoryMessage (guild : Guild, directories : Keyv<Directory>) {
-  return makeDirectoryMessage(guild, directories,
+export async function postEmptyDirectoryMessage (guild : Guild, directories : Keyv<Directory>) {
+  return postDirectoryMessage(guild, directories,
     'There are currently no games of mafia in progress. You can use the command "/new-game" to make one.',
   );
 }

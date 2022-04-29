@@ -1,6 +1,6 @@
 import { Guild, Message } from 'discord.js';
 import Keyv from 'keyv';
-import { deleteDirectoryMessages, makeDirectoryMessage, makeEmptyDirectoryMessage } from '../lib/directory';
+import { deleteDirectoryMessages, postDirectoryMessage, postEmptyDirectoryMessage } from '../lib/directory';
 import { Directory } from '../lib/types';
 
 const guild = ({
@@ -39,19 +39,19 @@ const badChannel = {
 
 describe('Making a directory message', () => {
   it('Should return a message', async () => {
-    expect(await makeDirectoryMessage(guild, directories, '')).toBe(message);
+    expect(await postDirectoryMessage(guild, directories, '')).toBe(message);
   });
   it('Shouldn\'t work for non-text channels', async () => {
-    await expect(makeDirectoryMessage(badGuild, directories, '')).rejects.toThrow();
+    await expect(postDirectoryMessage(badGuild, directories, '')).rejects.toThrow();
   });
 });
 
 describe('Making a directory message when there\'s no games in progress', () => {
   it('Should return a message', async () => {
-    expect(await makeEmptyDirectoryMessage(guild, directories)).toBe(message);
+    expect(await postEmptyDirectoryMessage(guild, directories)).toBe(message);
   });
   it('Shouldn\'t work for non-text channels', async () => {
-    await expect(makeEmptyDirectoryMessage(badGuild, directories)).rejects.toThrow();
+    await expect(postEmptyDirectoryMessage(badGuild, directories)).rejects.toThrow();
   });
 });
 
