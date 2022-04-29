@@ -1,3 +1,6 @@
+import Keyv from "keyv";
+import { Directory } from "../lib/types";
+
 const { execute } = require('../lib/menus/set-directory-menu.ts');
 
 const unauthorizedInteraction = {
@@ -43,11 +46,12 @@ const goodChannelInteraction = {
   },
   values: ['1'],
 };
-const directories = {
-  get: jest.fn(),
-  set: jest.fn(),
+const directories = new Keyv();
+const directory : Directory = {
+  channelId: '1',
+  messageIds: [],
 };
-
+directories.set('1',directory);
 
 describe('Setting a menu directory', () => {
   it('Should not work for users without administrator privileges', async () => {

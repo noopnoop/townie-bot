@@ -1,4 +1,5 @@
 import { Guild, Message } from 'discord.js';
+import Keyv from 'keyv';
 import { deleteDirectoryMessages, makeDirectoryMessage, makeEmptyDirectoryMessage } from '../lib/directory';
 import { Directory } from '../lib/types';
 
@@ -8,10 +9,12 @@ const guild = ({
     fetch: jest.fn(() => channel),
   },
 } as unknown) as Guild;
+const directories = new Keyv();
 const directory : Directory = {
   channelId: '1',
   messageIds: [],
 };
+directories.set('1',directory);
 const channel = {
   id: '1',
   type: 'GUILD_TEXT',
@@ -36,28 +39,28 @@ const badChannel = {
 
 describe('Making a directory message', () => {
   it('Should return a message', async () => {
-    expect(await makeDirectoryMessage(guild, directory, '')).toBe(message);
+    expect(await makeDirectoryMessage(guild, directories, '')).toBe(message);
   });
   it('Shouldn\'t work for non-text channels', async () => {
-    await expect(makeDirectoryMessage(badGuild, directory, '')).rejects.toThrow();
+    await expect(makeDirectoryMessage(badGuild, directories, '')).rejects.toThrow();
   });
 });
 
 describe('Making a directory message when there\'s no games in progress', () => {
   it('Should return a message', async () => {
-    expect(await makeEmptyDirectoryMessage(guild, directory)).toBe(message);
+    expect(await makeEmptyDirectoryMessage(guild, directories)).toBe(message);
   });
   it('Shouldn\'t work for non-text channels', async () => {
-    await expect(makeEmptyDirectoryMessage(badGuild, directory)).rejects.toThrow();
+    await expect(makeEmptyDirectoryMessage(badGuild, directories)).rejects.toThrow();
   });
 });
 
 describe('Deleting the messages in a directory', () => {
   it('Should delete', async () => {
-    await deleteDirectoryMessages(guild, directory);
+    await deleteDirectoryMessages(guild, directories);
     expect(message.delete).toBeCalled();
   });
   it('Returns an error message for non-text channels', async () => {
-    await expect(deleteDirectoryMessages(badGuild, directory)).resolves.not.toBe('');
+    await expect(deleteDirectoryMessages(badGuild, directories)).resolves.not.toBe('');
   });
 });
