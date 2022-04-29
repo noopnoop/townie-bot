@@ -48,7 +48,7 @@ async function validateInteraction (interaction : CommandInteraction, directorie
   || gameName.length > 30
   ) {
     await interaction.reply({ ephemeral: true, content: 'You must give your game a name. It may be between 5 and 30 characters in length.' });
-    throw new Error ('bad new-game interaction: bad number of players');
+    throw new Error ('bad new-game interaction: bad game name');
   }
   const creator = interaction.member?.user.username;
   if (!creator) {
