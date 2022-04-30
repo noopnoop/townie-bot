@@ -1,6 +1,6 @@
 import { SelectMenuInteraction, Permissions } from 'discord.js';
 import Keyv from 'keyv';
-import { deleteDirectoryMessages, getDirectory, postEmptyDirectoryMessage } from '../directory';
+import { deleteDirectoryMessages, getDirectory, postEmptyDirectoryMessage } from '../types/directory';
 import { Directory } from '../types';
 
 // makes sure the interaction corresponds to a valid guild and channel.
@@ -19,26 +19,24 @@ async function validateInteraction (interaction : SelectMenuInteraction) {
   return { guild, channel };
 }
 
-module.exports = {
 
-  name : 'set-directory',
+// name : 'set-directory',
 
-  async execute (interaction : SelectMenuInteraction, directories : Keyv<Directory>) {
-    const { guild, channel } = await validateInteraction(interaction);
-    // delete all our messages in the old directory.
-    const oldDirectory = await getDirectory(guild, directories)
-      .catch();
-    let deletionError = '';
-    if (oldDirectory) {
-      deletionError = await deleteDirectoryMessages(guild, directories);
-    }
-    // create the new directory
-    const newDirectory = {
-      messageIds: [],
-      channelId: channel.id,
-    };
-    await directories.set(guild.id, newDirectory);
-    await postEmptyDirectoryMessage(guild, directories);
-    await interaction.reply({ content: 'Directory set successfully.' + deletionError, ephemeral: true });
-  },
-};
+export async function executeSetDirectoryMenu (interaction : SelectMenuInteraction, directories : Keyv<Directory>) {
+  const { guild, channel } = await validateInteraction(interaction);
+  // delete all our messages in the old directory.
+  const oldDirectory = await getDirectory(guild, directories)
+    .catch();
+  let deletionError = '';
+  if (oldDirectory) {
+    deletionError = await deleteDirectoryMessages(guild, directories);
+  }
+  // create the new directory
+  const newDirectory = {
+    messageIds: [],
+    channelId: channel.id,
+  };
+  await directories.set(guild.id, newDirectory);
+  await postEmptyDirectoryMessage(guild, directories);
+  await interaction.reply({ content: 'Directory set successfully.' + deletionError, ephemeral: true });
+}

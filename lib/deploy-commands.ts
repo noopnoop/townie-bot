@@ -1,15 +1,13 @@
 import fs from 'node:fs';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
-const { clientId, guildId, token } = require('./config.json');
+import { clientId, guildId, token } from './config.json';
+import { newGameData } from './commands/new-game';
+import { setDirectoryData } from './commands/set-directory';
 
 const commands = [];
-const commandFiles = fs.readdirSync('./lib/commands').filter(file => file.endsWith('.ts'));
-
-for (const file of commandFiles) {
-  const command = require(`./commands/${file}`);
-  commands.push(command.data.toJSON());
-}
+commands.push(newGameData.toJSON());
+commands.push(setDirectoryData.toJSON());
 
 const rest = new REST({ version: '9' }).setToken(token);
 

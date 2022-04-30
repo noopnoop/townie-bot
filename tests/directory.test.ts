@@ -1,6 +1,6 @@
 import { Guild, Message } from 'discord.js';
 import Keyv from 'keyv';
-import { deleteDirectoryMessages, postDirectoryMessage, postEmptyDirectoryMessage } from '../lib/directory';
+import { deleteDirectoryMessages, postDirectoryMessage, postEmptyDirectoryMessage } from '../lib/types/directory';
 import { Directory } from '../lib/types';
 
 const guild = ({
@@ -14,7 +14,7 @@ const directory : Directory = {
   channelId: '1',
   messageIds: [],
 };
-directories.set('1',directory);
+directories.set('1', directory);
 const channel = {
   id: '1',
   type: 'GUILD_TEXT',

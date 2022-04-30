@@ -1,6 +1,6 @@
 import { Guild, MessageOptions, MessagePayload } from 'discord.js';
 import Keyv from 'keyv';
-import { Directory } from './types';
+import { Directory } from '../types';
 
 // unfortunately necessary as Keyv.get can return undefined
 export async function getDirectory (guild : Guild, directories : Keyv<Directory>) {

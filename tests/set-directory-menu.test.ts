@@ -1,21 +1,22 @@
-import Keyv from "keyv";
-import { Directory } from "../lib/types";
+import Keyv from 'keyv';
+import { Directory } from '../lib/types';
 
-const { execute } = require('../lib/menus/set-directory-menu.ts');
+import { executeSetDirectoryMenu } from '../lib/menus/set-directory-menu';
+import { SelectMenuInteraction } from 'discord.js';
 
-const unauthorizedInteraction = {
+const unauthorizedInteraction = ({
   reply: jest.fn(res => res.content),
-};
-const guildlessInteraction = {
+}as unknown) as SelectMenuInteraction;
+const guildlessInteraction = ({
   reply: jest.fn(res => res.content),
   memberPermissions: {
     has: jest.fn(() => true),
   },
-};
+}as unknown) as SelectMenuInteraction;
 const badChannel = {
   type: 'GUILD_NEWS',
 };
-const badChannelInteraction = {
+const badChannelInteraction = ({
   reply: jest.fn(res => res.content),
   memberPermissions: {
     has: jest.fn(() => true),
@@ -27,13 +28,13 @@ const badChannelInteraction = {
     },
   },
   values: ['1'],
-};
+}as unknown) as SelectMenuInteraction;
 const goodChannel = {
   type: 'GUILD_TEXT',
   send: jest.fn(() => '1'),
   id: '1',
 };
-const goodChannelInteraction = {
+const goodChannelInteraction = ({
   reply: jest.fn(res => res.content),
   memberPermissions: {
     has: jest.fn(() => true),
@@ -45,29 +46,29 @@ const goodChannelInteraction = {
     },
   },
   values: ['1'],
-};
+}as unknown) as SelectMenuInteraction;
 const directories = new Keyv();
 const directory : Directory = {
   channelId: '1',
   messageIds: [],
 };
-directories.set('1',directory);
+directories.set('1', directory);
 
 describe('Setting a menu directory', () => {
   it('Should not work for users without administrator privileges', async () => {
-    await execute(unauthorizedInteraction)
+    await executeSetDirectoryMenu(unauthorizedInteraction, directories)
       .catch(() => {
         expect(unauthorizedInteraction.reply).toReturnWith('You must have administrator privileges to set a new directory.');
       });
   });
   it('Should only work in a guild', async () => {
-    await expect(execute(guildlessInteraction)).rejects.toThrow('bad set-directory menu interaction: no guild');
+    await expect(executeSetDirectoryMenu(guildlessInteraction, directories)).rejects.toThrow('bad set-directory menu interaction: no guild');
   });
   it('Should only work with a text channel', async () => {
-    await expect(execute(badChannelInteraction)).rejects.toThrow('bad set-directory menu interaction: invalid channel');
+    await expect(executeSetDirectoryMenu(badChannelInteraction, directories)).rejects.toThrow('bad set-directory menu interaction: invalid channel');
   });
   it('Can possibly work', async () => {
-    await execute(goodChannelInteraction, directories)
+    await executeSetDirectoryMenu(goodChannelInteraction, directories)
       .catch((err:unknown) => console.error(err));
     expect(goodChannelInteraction.reply).toReturnWith('Directory set successfully.');
   });

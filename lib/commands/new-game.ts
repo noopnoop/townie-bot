@@ -1,8 +1,8 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction } from 'discord.js';
 import Keyv from 'keyv';
-import { getDirectory } from '../directory';
-import { postGameMessage } from '../game-listing';
+import { getDirectory } from '../types/directory';
+import { postGameMessage } from '../types/game-listing';
 import { Directory, GameListing } from '../types';
 
 function makeGameListing (players: number, gameName : string, creator: string) : GameListing {
@@ -57,28 +57,24 @@ async function validateInteraction (interaction : CommandInteraction, directorie
   return { guild, players, gameName, creator };
 }
 
-module.exports = {
+export const newGameData = new SlashCommandBuilder()
+  .setName('new-game')
+  .setDescription('Create a new mafia game.')
+  .addIntegerOption(option =>
+    option.setName('players')
+      .setDescription('The number of players this game will have. Must be between 5 and 20.')
+      .setRequired(true),
+    // .addChoices(...choices)
+  )
+  .addStringOption(option =>
+    option.setName('game-name')
+      .setDescription('The name of the game. Must be between 5 and 30 characters long.')
+      .setRequired(true),
+  );
 
-  data: new SlashCommandBuilder()
-    .setName('new-game')
-    .setDescription('Create a new mafia game.')
-    .addIntegerOption(option =>
-      option.setName('players')
-        .setDescription('The number of players this game will have. Must be between 5 and 20.')
-        .setRequired(true),
-      // .addChoices(...choices)
-    )
-    .addStringOption(option =>
-      option.setName('game-name')
-        .setDescription('The name of the game. Must be between 5 and 30 characters long.')
-        .setRequired(true),
-    ),
-
-  async execute (interaction : CommandInteraction, directories : Keyv<Directory>) {
-    const { guild, players, gameName, creator } = await validateInteraction(interaction, directories);
-    const game = makeGameListing(players, gameName, creator);
-    await postGameMessage(guild, directories, game);
-    await interaction.reply({ephemeral: true, content: `New game "${gameName}" created successfully.`})
-  },
-
-};
+export async function executeNewGame (interaction : CommandInteraction, directories : Keyv<Directory>) {
+  const { guild, players, gameName, creator } = await validateInteraction(interaction, directories);
+  const game = makeGameListing(players, gameName, creator);
+  await postGameMessage(guild, directories, game);
+  await interaction.reply({ ephemeral: true, content: `New game "${gameName}" created successfully.` });
+}
