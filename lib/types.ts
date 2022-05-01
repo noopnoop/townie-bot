@@ -12,6 +12,7 @@ export interface Directory {
 
 export type GuildId = string;
 export type PlayerId = string;
+export type MessageId = string;
 export type GameDB = Map<GuildId, Map<PlayerId, GameListing>>;
 
 export interface GuildMafiaInfo {

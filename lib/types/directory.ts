@@ -1,12 +1,18 @@
 import { Guild, MessageOptions, MessagePayload } from 'discord.js';
 import Keyv from 'keyv';
-import { Directory } from '../types';
+import { Directory, MessageId } from '../types';
 
 // unfortunately necessary as Keyv.get can return undefined
 export async function getDirectory (guild : Guild, directories : Keyv<Directory>) {
   const directory = await directories.get(guild.id);
   if (!directory) throw new Error ('couldnt get directory');
   return directory;
+}
+
+export async function addMessageIdToDirectory (guild: Guild, directories: Keyv<Directory>, id : MessageId) {
+  const dir = await getDirectory(guild, directories);
+  dir.messageIds.push(id);
+  directories.set(guild.id, dir);
 }
 
 // makes a new message, updates the directory object to hold the new message id, and returns the message.
@@ -47,5 +53,6 @@ export async function deleteDirectoryMessages (guild : Guild, directories : Keyv
     deletionError = ' However, something went wrong when deleting the messages created by this bot in the old directory. This likely means they were already deleted somehow, but you might have to go back and delete them manually.';
   }
   directory.messageIds = [];
+  await directories.set(guild.id, directory);
   return deletionError;
 }

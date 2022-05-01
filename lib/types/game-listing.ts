@@ -12,8 +12,9 @@ export async function postGameMessage (guild : Guild, directories : Keyv<Directo
         .setLabel('Join Game')
         .setStyle('SUCCESS'),
     );
-  postDirectoryMessage(guild, directories, {
+  const newMessage = await postDirectoryMessage(guild, directories, {
     content: game.name + '\nCreated by ' + game.creator + '\nPlayers: ' + game.current_players + '/' + game.max_players,
     components: [button],
   });
+  return newMessage;
 }

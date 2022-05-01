@@ -1,10 +1,10 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction } from 'discord.js';
 import Keyv from 'keyv';
-import { getDirectory } from '../types/directory';
+import { deleteDirectoryMessages, getDirectory } from '../types/directory';
 import { postGameMessage } from '../types/game-listing';
 import { Directory, GameDB, GameListing } from '../types';
-import { addGameToDB, checkForGame } from '../types/gamedb';
+import { addGameToDB, checkForGame, noGames } from '../types/gamedb';
 
 function makeGameListing (players: number, gameName : string, creator: string) : GameListing {
   return {
@@ -81,7 +81,11 @@ export const newGameData = new SlashCommandBuilder()
 export async function executeNewGame (interaction : CommandInteraction, directories : Keyv<Directory>, db : GameDB) {
   const { guild, players, gameName, creator, creatorId } = await validateInteraction(interaction, directories, db);
   const game = makeGameListing(players, gameName, creator);
-  await addGameToDB(game, guild.id, creatorId, db);
+  if (noGames(guild.id, db)) {
+    await deleteDirectoryMessages(guild, directories);
+  }
   await postGameMessage(guild, directories, game);
+  await addGameToDB(game, guild.id, creatorId, db);
+  // await addMessageIdToDirectory(guild, directories, newMsg.id)
   await interaction.reply({ ephemeral: true, content: `New game "${gameName}" created successfully.` });
 }

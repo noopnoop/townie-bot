@@ -18,3 +18,11 @@ export function checkForGame (guildId : GuildId, playerId : PlayerId, db: GameDB
   if (!gameInfo) return false;
   return true;
 }
+
+export function noGames (guildId : GuildId, db: GameDB) {
+  const info = db.get(guildId);
+  if (!info || info.size === 0) {
+    return true;
+  }
+  return false;
+}
