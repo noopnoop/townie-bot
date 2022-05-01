@@ -3,7 +3,8 @@ import { CommandInteraction } from 'discord.js';
 import Keyv from 'keyv';
 import { getDirectory } from '../types/directory';
 import { postGameMessage } from '../types/game-listing';
-import { Directory, GameListing } from '../types';
+import { Directory, GameDB, GameListing } from '../types';
+import { addGameToDB, checkForGame } from '../types/gamedb';
 
 function makeGameListing (players: number, gameName : string, creator: string) : GameListing {
   return {
@@ -22,7 +23,7 @@ function makeGameListing (players: number, gameName : string, creator: string) :
 //   };
 // });
 
-async function validateInteraction (interaction : CommandInteraction, directories : Keyv<Directory>) {
+async function validateInteraction (interaction : CommandInteraction, directories : Keyv<Directory>, db: GameDB) {
   const guild = interaction.guild;
   if (!guild) {
     await interaction.reply({ ephemeral: true, content: 'This command may only be used in a guild.' });
@@ -54,7 +55,12 @@ async function validateInteraction (interaction : CommandInteraction, directorie
   if (!creator) {
     throw new Error ('bad new-game interaction: invalid creator');
   }
-  return { guild, players, gameName, creator };
+  const creatorId = interaction.member?.user.id;
+  if (!creatorId || checkForGame(guild.id, creatorId, db)) {
+    await interaction.reply({ ephemeral: true, content: 'You can\'t make a new game as you are already in one.' });
+    throw new Error ('bad new-game interaction: user already created game');
+  }
+  return { guild, players, gameName, creator, creatorId };
 }
 
 export const newGameData = new SlashCommandBuilder()
@@ -72,9 +78,10 @@ export const newGameData = new SlashCommandBuilder()
       .setRequired(true),
   );
 
-export async function executeNewGame (interaction : CommandInteraction, directories : Keyv<Directory>) {
-  const { guild, players, gameName, creator } = await validateInteraction(interaction, directories);
+export async function executeNewGame (interaction : CommandInteraction, directories : Keyv<Directory>, db : GameDB) {
+  const { guild, players, gameName, creator, creatorId } = await validateInteraction(interaction, directories, db);
   const game = makeGameListing(players, gameName, creator);
+  await addGameToDB(game, guild.id, creatorId, db);
   await postGameMessage(guild, directories, game);
   await interaction.reply({ ephemeral: true, content: `New game "${gameName}" created successfully.` });
 }

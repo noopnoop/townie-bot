@@ -14,20 +14,20 @@ const directories : Keyv<Directory> = new Keyv('sqlite://directories.sqlite');
 const games : GameDB = new Map();
 
 client.once('ready', () => console.log('Up and running'));
-client.on('interactionCreate', (interaction : Interaction) => {
+client.on('interactionCreate', async (interaction : Interaction) => {
   if (interaction.isCommand()) {
     switch (interaction.commandName) {
     case 'new-game':
-      executeNewGame(interaction, directories);
+      await executeNewGame(interaction, directories, games).catch(err => console.error(err));
       return;
     case 'set-directory':
-      executeSetDirectory(interaction);
+      await executeSetDirectory(interaction).catch(err => console.error(err));
       return;
     }
   } else if (interaction.isSelectMenu()) {
     switch (interaction.customId) {
     case 'set-directory-menu':
-      executeSetDirectoryMenu(interaction, directories);
+      await executeSetDirectoryMenu(interaction, directories).catch(err => console.error(err));
       return;
     }
   }
