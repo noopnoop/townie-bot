@@ -6,7 +6,7 @@ import { postGameMessage } from '../types/game-listing';
 import { Directory, GameDB, GameListing } from '../types';
 import { addGameToDB, checkForGame, noGames } from '../types/gamedb';
 
-function makeGameListing (players: number, gameName : string, creator: string) : GameListing {
+function makeGameListing (players: number, gameName : string, creator: string) {
   return {
     max_players : players,
     current_players : 1,
@@ -15,13 +15,6 @@ function makeGameListing (players: number, gameName : string, creator: string) :
     players : [creator],
   };
 }
-
-// const choices = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map(num => {
-//   return {
-//     name: num.toString(),
-//     value: num,
-//   };
-// });
 
 async function validateInteraction (interaction : CommandInteraction, directories : Keyv<Directory>, db: GameDB) {
   const guild = interaction.guild;
@@ -70,7 +63,6 @@ export const newGameData = new SlashCommandBuilder()
     option.setName('players')
       .setDescription('The number of players this game will have. Must be between 5 and 20.')
       .setRequired(true),
-    // .addChoices(...choices)
   )
   .addStringOption(option =>
     option.setName('game-name')
@@ -80,12 +72,12 @@ export const newGameData = new SlashCommandBuilder()
 
 export async function executeNewGame (interaction : CommandInteraction, directories : Keyv<Directory>, db : GameDB) {
   const { guild, players, gameName, creator, creatorId } = await validateInteraction(interaction, directories, db);
-  const game = makeGameListing(players, gameName, creator);
+  const game = (makeGameListing(players, gameName, creator) as unknown) as GameListing;
   if (noGames(guild.id, db)) {
     await deleteDirectoryMessages(guild, directories);
   }
-  await postGameMessage(guild, directories, game);
-  await addGameToDB(game, guild.id, creatorId, db);
-  // await addMessageIdToDirectory(guild, directories, newMsg.id)
+  const msgId = await postGameMessage(guild, directories, game);
+  game.messageId = msgId;
+  addGameToDB(game, guild.id, creatorId, db);
   await interaction.reply({ ephemeral: true, content: `New game "${gameName}" created successfully.` });
 }

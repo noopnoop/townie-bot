@@ -25,7 +25,8 @@ export interface GameListing {
   current_players : number,
   name : string,
   creator : string,
-  players : string[]
+  players : string[],
+  messageId : MessageId
 }
 
 export interface Executable<InteractionType> {

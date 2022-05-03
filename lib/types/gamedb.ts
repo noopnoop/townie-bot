@@ -1,6 +1,6 @@
 import { GameDB, GameListing, GuildId, PlayerId } from '../types';
 
-export async function addGameToDB (game : GameListing, guildId : GuildId, playerId : PlayerId, db : GameDB) {
+export function addGameToDB (game : GameListing, guildId : GuildId, playerId : PlayerId, db : GameDB) {
   const previous = db.get(guildId);
   if (previous) {
     previous.set(playerId, game);
@@ -9,6 +9,14 @@ export async function addGameToDB (game : GameListing, guildId : GuildId, player
   const newEntry = new Map<PlayerId, GameListing>();
   newEntry.set(playerId, game);
   db.set(guildId, newEntry);
+}
+
+export function deleteGameFromDB (guildId: GuildId, playerId : PlayerId, db: GameDB) {
+  const previous = db.get(guildId);
+  if (previous) {
+    previous.delete(playerId);
+    db.set(guildId, previous);
+  }
 }
 
 export function checkForGame (guildId : GuildId, playerId : PlayerId, db: GameDB) {

@@ -16,5 +16,5 @@ export async function postGameMessage (guild : Guild, directories : Keyv<Directo
     content: game.name + '\nCreated by ' + game.creator + '\nPlayers: ' + game.current_players + '/' + game.max_players,
     components: [button],
   });
-  return newMessage;
+  return newMessage.id;
 }

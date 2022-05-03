@@ -35,6 +35,21 @@ export async function postEmptyDirectoryMessage (guild : Guild, directories : Ke
   );
 }
 
+export async function deleteDirectoryMessage (guild : Guild, messageId : MessageId, directories : Keyv<Directory>) {
+  const directory = await getDirectory(guild, directories);
+  const channel = await guild.channels.fetch(directory.channelId);
+  if (channel && channel.type === 'GUILD_TEXT') {
+    const message = await channel.messages.fetch(messageId);
+    await message.delete();
+  } else {throw new Error('couldnt delete directory: invalid channel');}
+  const newMessages = directory.messageIds.filter(x => x !== messageId);
+  const newDirectory = {
+    channelId: directory.channelId,
+    messageIds: newMessages,
+  };
+  await directories.set(guild.id, newDirectory);
+}
+
 // delete the messages in a directory. returns an empty string if everything goes well; if theres an error, returns a string with user-facing info.
 // errors are likely just the result of someone having already deleted some messages.
 export async function deleteDirectoryMessages (guild : Guild, directories : Keyv<Directory>) {

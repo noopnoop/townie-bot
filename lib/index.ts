@@ -5,6 +5,7 @@ import { token } from './config.json';
 import { executeNewGame } from './commands/new-game';
 import { executeSetDirectory } from './commands/set-directory';
 import { executeSetDirectoryMenu } from './menus/set-directory-menu';
+import { executeDeleteGame } from './commands/delete-game';
 
 const client = new Client ({ intents: [Intents.FLAGS.GUILDS] });
 
@@ -19,6 +20,9 @@ client.on('interactionCreate', async (interaction : Interaction) => {
     switch (interaction.commandName) {
     case 'new-game':
       await executeNewGame(interaction, directories, games).catch(err => console.error(err));
+      return;
+    case 'delete-game':
+      await executeDeleteGame(interaction, directories, games).catch(err => console.error(err));
       return;
     case 'set-directory':
       await executeSetDirectory(interaction).catch(err => console.error(err));
