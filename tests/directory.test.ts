@@ -1,6 +1,6 @@
 import { Guild, Message } from 'discord.js';
 import Keyv from 'keyv';
-import { deleteDirectoryMessages, postDirectoryMessage, postEmptyDirectoryMessage } from '../lib/types/directory';
+import { addMessageIdToDirectory, deleteDirectoryMessages, postDirectoryMessage, postEmptyDirectoryMessage } from '../lib/types/directory';
 import { Directory } from '../lib/types';
 
 const guild = ({
@@ -36,6 +36,13 @@ const badGuild = ({
 const badChannel = {
   type: 'GUILD_NEWS',
 };
+
+// describe('Adding a message to a directory', () => {
+//   it('Should be able to succeed', async () => {
+//     await addMessageIdToDirectory(guild,directories,'1');
+//     expect(directories.get('1')).toBe()
+//   });
+// })
 
 describe('Making a directory message', () => {
   it('Should return a message', async () => {
