@@ -17,7 +17,7 @@ export async function executeDeleteGame (interaction : CommandInteraction, direc
       const msgId = db.get(guild.id)?.get(player)?.messageId;
       deleteGameFromDB(guild.id, player, db);
       if (!msgId) {
-       throw new Error ('bad delete game interaction: no directory message');
+        throw new Error ('bad delete game interaction: no directory message');
       }
       await deleteDirectoryMessage(guild, msgId, directories);
       await interaction.reply({ ephemeral: true, content:'Message deleted.' });
@@ -29,5 +29,5 @@ export async function executeDeleteGame (interaction : CommandInteraction, direc
     if (guildGames?.size === 0) {
       await postEmptyDirectoryMessage(guild, directories);
     }
-  } else throw new Error ('bad delete-game interaction: no guild or player')
+  } else {throw new Error ('bad delete-game interaction: no guild or player');}
 }

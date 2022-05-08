@@ -76,7 +76,7 @@ export async function executeNewGame (interaction : CommandInteraction, director
   if (noGames(guild.id, db)) {
     await deleteDirectoryMessages(guild, directories);
   }
-  const msgId = await postGameMessage(guild, directories, game);
+  const msgId = await postGameMessage(creatorId, guild, directories, game);
   game.messageId = msgId;
   addGameToDB(game, guild.id, creatorId, db);
   await interaction.reply({ ephemeral: true, content: `New game "${gameName}" created successfully.` });

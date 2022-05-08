@@ -6,6 +6,7 @@ import { executeNewGame } from './commands/new-game';
 import { executeSetDirectory } from './commands/set-directory';
 import { executeSetDirectoryMenu } from './menus/set-directory-menu';
 import { executeDeleteGame } from './commands/delete-game';
+import { executeJoinGameButton } from './buttons/join-game-button';
 
 const client = new Client ({ intents: [Intents.FLAGS.GUILDS] });
 
@@ -32,6 +33,12 @@ client.on('interactionCreate', async (interaction : Interaction) => {
     switch (interaction.customId) {
     case 'set-directory-menu':
       await executeSetDirectoryMenu(interaction, directories).catch(err => console.error(err));
+      return;
+    }
+  } else if (interaction.isButton()) {
+    switch (interaction.customId.split('/')[0]) {
+    case 'join-game':
+      await executeJoinGameButton(interaction, games, directories).catch(err => console.error(err));
       return;
     }
   }
