@@ -3,16 +3,16 @@ import { CommandInteraction } from 'discord.js';
 import Keyv from 'keyv';
 import { deleteDirectoryMessages, getDirectory } from '../types/directory';
 import { postGameMessage } from '../types/game-listing';
-import { Directory, GameDB, GameListing } from '../types';
+import { Directory, GameDB, GameListing, PlayerId } from '../types';
 import { addGameToDB, checkForGame, noGames } from '../types/gamedb';
 
-function makeGameListing (players: number, gameName : string, creator: string) {
+function makeGameListing (players: number, gameName : string, creator: string, creatorId: PlayerId) {
   return {
     max_players : players,
     current_players : 1,
     name : gameName,
     creator : creator,
-    players : [creator],
+    players : [creatorId],
   };
 }
 
@@ -72,7 +72,7 @@ export const newGameData = new SlashCommandBuilder()
 
 export async function executeNewGame (interaction : CommandInteraction, directories : Keyv<Directory>, db : GameDB) {
   const { guild, players, gameName, creator, creatorId } = await validateInteraction(interaction, directories, db);
-  const game = (makeGameListing(players, gameName, creator) as unknown) as GameListing;
+  const game = (makeGameListing(players, gameName, creator, creatorId) as unknown) as GameListing;
   if (noGames(guild.id, db)) {
     await deleteDirectoryMessages(guild, directories);
   }

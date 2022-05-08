@@ -38,7 +38,8 @@ export function makeGameMessage (creatorId: PlayerId, game: GameListing) {
 }
 
 export function addPlayerToGame (player : PlayerId, game : GameListing) {
-  if (game.current_players >= game.max_players) return;
+  if (game.current_players >= game.max_players) throw new Error ("couldn't add player to game: already at maximum capacity");
+  if (game.players.find(p => p === player)) throw new Error ("couldn't add player to game: player already in game")
   game.players.push(player);
   game.current_players += 1;
 }
