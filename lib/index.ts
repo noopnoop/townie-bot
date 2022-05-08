@@ -38,7 +38,7 @@ client.on('interactionCreate', async (interaction : Interaction) => {
   } else if (interaction.isButton()) {
     switch (interaction.customId.split('/')[0]) {
     case 'join-game':
-      await executeJoinGameButton(interaction, games, directories).catch(err => console.error(err));
+      await executeJoinGameButton(interaction, games).catch(err => console.error(err));
       return;
     }
   }
