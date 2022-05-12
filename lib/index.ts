@@ -7,6 +7,7 @@ import { executeSetDirectory } from './commands/set-directory';
 import { executeSetDirectoryMenu } from './menus/set-directory-menu';
 import { executeDeleteGame } from './commands/delete-game';
 import { executeJoinGameButton } from './buttons/join-game-button';
+import { normalize } from './types/normal-interaction';
 
 const client = new Client ({ intents: [Intents.FLAGS.GUILDS] });
 
@@ -16,7 +17,11 @@ const directories : Keyv<Directory> = new Keyv('sqlite://directories.sqlite');
 const games : GameDB = new Map();
 
 client.once('ready', () => console.log('Up and running'));
-client.on('interactionCreate', async (interaction : Interaction) => {
+client.on('interactionCreate', async (rawInteraction : Interaction) => {
+  const interaction = normalize(rawInteraction);
+  if (!interaction) {
+    return;
+  }
   if (interaction.isCommand()) {
     switch (interaction.commandName) {
     case 'new-game':

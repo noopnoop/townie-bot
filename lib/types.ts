@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction, SelectMenuInteraction } from 'discord.js';
+import { CommandInteraction, Guild, GuildMember, Interaction, SelectMenuInteraction, TextChannel, User } from 'discord.js';
 import Keyv from 'keyv';
 
 // when you add the Townie to a server before you can do anything with it you have to specify a channel to act as a Directory
@@ -8,6 +8,16 @@ import Keyv from 'keyv';
 export interface Directory {
   channelId : string,
   messageIds : string[],
+}
+
+export interface NormalInteraction extends Interaction {
+  guild : Guild
+  member : NormalMember
+  channel: TextChannel
+}
+
+export interface NormalMember extends GuildMember {
+  displayName : string
 }
 
 export type GuildId = string;

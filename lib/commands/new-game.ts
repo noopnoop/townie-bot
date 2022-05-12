@@ -3,7 +3,7 @@ import { CommandInteraction } from 'discord.js';
 import Keyv from 'keyv';
 import { deleteDirectoryMessages, getDirectory } from '../types/directory';
 import { postGameMessage } from '../types/game-listing';
-import { Directory, GameDB, GameListing, PlayerId } from '../types';
+import { Directory, GameDB, GameListing, NormalInteraction, PlayerId } from '../types';
 import { addGameToDB, checkForGame, noGames } from '../types/gamedb';
 
 function makeGameListing (players: number, gameName : string, creator: string, creatorId: PlayerId) {
@@ -16,12 +16,8 @@ function makeGameListing (players: number, gameName : string, creator: string, c
   };
 }
 
-async function validateInteraction (interaction : CommandInteraction, directories : Keyv<Directory>, db: GameDB) {
+async function validateInteraction (interaction : CommandInteraction & NormalInteraction, directories : Keyv<Directory>, db: GameDB) {
   const guild = interaction.guild;
-  if (!guild) {
-    await interaction.reply({ ephemeral: true, content: 'This command may only be used in a guild.' });
-    throw new Error('bad new-game interaction: not in a guild');
-  }
   await getDirectory(interaction.guild, directories)
     .catch(async () => {
       await interaction.reply({ ephemeral: true, content: 'You need to designate a channel to be a directory using the "/set-directory" command before you can make a game.' });
@@ -44,15 +40,8 @@ async function validateInteraction (interaction : CommandInteraction, directorie
     await interaction.reply({ ephemeral: true, content: 'You must give your game a name. It may be between 5 and 30 characters in length.' });
     throw new Error ('bad new-game interaction: bad game name');
   }
-  const creator = interaction.member?.user.username;
-  if (!creator) {
-    throw new Error ('bad new-game interaction: invalid creator');
-  }
-  const creatorId = interaction.member?.user.id;
-  if (!creatorId || checkForGame(guild.id, creatorId, db)) {
-    await interaction.reply({ ephemeral: true, content: 'You can\'t make a new game as you are already in one.' });
-    throw new Error ('bad new-game interaction: user already created game');
-  }
+  const creator = interaction.member.displayName;
+  const creatorId = interaction.member.id;
   return { guild, players, gameName, creator, creatorId };
 }
 
@@ -70,7 +59,7 @@ export const newGameData = new SlashCommandBuilder()
       .setRequired(true),
   );
 
-export async function executeNewGame (interaction : CommandInteraction, directories : Keyv<Directory>, db : GameDB) {
+export async function executeNewGame (interaction : CommandInteraction & NormalInteraction, directories : Keyv<Directory>, db : GameDB) {
   const { guild, players, gameName, creator, creatorId } = await validateInteraction(interaction, directories, db);
   const game = (makeGameListing(players, gameName, creator, creatorId) as unknown) as GameListing;
   if (noGames(guild.id, db)) {
