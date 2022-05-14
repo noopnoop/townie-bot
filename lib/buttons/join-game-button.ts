@@ -1,5 +1,5 @@
 import { ButtonInteraction, Message } from 'discord.js';
-import { GameDB } from '../types';
+import { GameDB, NormalInteraction } from '../types';
 import { addPlayerToGame, makeGameMessage } from '../types/game-listing';
 import { checkForGame } from '../types/gamedb';
 
@@ -9,11 +9,9 @@ function getCreator (interaction : ButtonInteraction) {
   return creator;
 }
 
-// wip
-export async function executeJoinGameButton (interaction : ButtonInteraction, db : GameDB) {
+export async function executeJoinGameButton (interaction : ButtonInteraction & NormalInteraction, db : GameDB) {
   const guild = interaction.guild;
-  const player = interaction.member?.user.id;
-  if (!guild || !player) throw new Error ('bad join-game interaction: no guild or bad player');
+  const player = interaction.member.user.id;
   const messageCreator = getCreator(interaction);
   const guildListings = db.get(guild.id);
   const listing = guildListings?.get(messageCreator);

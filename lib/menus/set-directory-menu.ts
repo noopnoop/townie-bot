@@ -1,18 +1,17 @@
 import { SelectMenuInteraction, Permissions } from 'discord.js';
 import Keyv from 'keyv';
 import { deleteDirectoryMessages, getDirectory, postEmptyDirectoryMessage } from '../types/directory';
-import { Directory } from '../types';
+import { Directory, NormalInteraction } from '../types';
 
 // makes sure the interaction corresponds to a valid guild and channel.
 // if not, we error out and stop trying to set our directory.
 // if so, return the guild and channel.
-async function validateInteraction (interaction : SelectMenuInteraction) {
+async function validateInteraction (interaction : SelectMenuInteraction & NormalInteraction) {
   if (!interaction.memberPermissions?.has(Permissions.FLAGS.ADMINISTRATOR)) {
     await interaction.reply({ content: 'You must have administrator privileges to set a new directory.', ephemeral: true });
     throw new Error('bad set-directory menu interaction: not an administrator');
   }
   const guild = interaction.guild;
-  if (!guild) throw new Error('bad set-directory menu interaction: no guild');
   const selectedChannel = interaction.values[0];
   const channel = await guild.channels.fetch(selectedChannel);
   if (!channel || channel.type !== 'GUILD_TEXT') throw new Error('bad set-directory menu interaction: invalid channel');
@@ -22,7 +21,7 @@ async function validateInteraction (interaction : SelectMenuInteraction) {
 
 // name : 'set-directory',
 
-export async function executeSetDirectoryMenu (interaction : SelectMenuInteraction, directories : Keyv<Directory>) {
+export async function executeSetDirectoryMenu (interaction : SelectMenuInteraction & NormalInteraction, directories : Keyv<Directory>) {
   const { guild, channel } = await validateInteraction(interaction);
   // delete all our messages in the old directory.
   const oldDirectory = await getDirectory(guild, directories)
