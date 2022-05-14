@@ -4,11 +4,13 @@ import { clientId, guildId, token } from './config.json';
 import { newGameData } from './commands/new-game';
 import { setDirectoryData } from './commands/set-directory';
 import { deleteGameData } from './commands/delete-game';
+import { leaveGameData } from './commands/leave-game';
 
 const commands = [];
 commands.push(newGameData.toJSON());
 commands.push(setDirectoryData.toJSON());
 commands.push(deleteGameData.toJSON());
+commands.push(leaveGameData.toJSON());
 
 const rest = new REST({ version: '9' }).setToken(token);
 

@@ -24,6 +24,7 @@ export type GuildId = string;
 export type PlayerId = string;
 export type MessageId = string;
 export type GameDB = Map<GuildId, Map<PlayerId, GameListing>>;
+export type PlayerDB = Map<PlayerId, [GuildId, PlayerId]>;
 
 export interface GuildMafiaInfo {
   directory : Directory,
@@ -35,8 +36,10 @@ export interface GameListing {
   current_players : number,
   name : string,
   creator : string,
+  creatorId : PlayerId
   players : string[],
-  messageId : MessageId
+  messageId : MessageId,
+  guildId : GuildId
 }
 
 export interface Executable<InteractionType> {

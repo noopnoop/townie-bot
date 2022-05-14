@@ -1,5 +1,5 @@
-import { Interaction } from "discord.js";
-import { NormalInteraction, NormalMember } from "../types";
+import { Interaction } from 'discord.js';
+import { NormalInteraction, NormalMember } from '../types';
 
 export function normalize (interaction : Interaction) : (NormalInteraction | undefined) {
   const guild = interaction.guild;
