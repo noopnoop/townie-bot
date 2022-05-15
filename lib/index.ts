@@ -2,7 +2,6 @@ import { Client, Intents, Interaction } from 'discord.js';
 import { GameDB, PlayerDB } from './types';
 import { token } from './config.json';
 import { executeNewGame } from './commands/new-game';
-import { executeSetDirectory } from './commands/set-directory';
 import { executeDeleteGame } from './commands/delete-game';
 import { executeJoinGameButton } from './buttons/join-game-button';
 import { normalize } from './types/normal-interaction';
@@ -28,9 +27,6 @@ client.on('interactionCreate', async (rawInteraction : Interaction) => {
       return;
     case 'delete-game':
       await executeDeleteGame(interaction, games).catch(err => console.error(err));
-      return;
-    case 'set-directory':
-      await executeSetDirectory(interaction).catch(err => console.error(err));
       return;
     case 'leave-game':
       await executeLeaveGame(interaction, players, games).catch(err => console.error(err));

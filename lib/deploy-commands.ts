@@ -2,13 +2,11 @@ import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import { clientId, guildId, token } from './config.json';
 import { newGameData } from './commands/new-game';
-import { setDirectoryData } from './commands/set-directory';
 import { deleteGameData } from './commands/delete-game';
 import { leaveGameData } from './commands/leave-game';
 
 const commands = [];
 commands.push(newGameData.toJSON());
-commands.push(setDirectoryData.toJSON());
 commands.push(deleteGameData.toJSON());
 commands.push(leaveGameData.toJSON());
 
