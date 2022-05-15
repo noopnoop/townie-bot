@@ -1,23 +1,7 @@
-import { Guild, MessageActionRow, MessageButton, MessageButtonStyleResolvable } from 'discord.js';
-import Keyv from 'keyv';
-import { postDirectoryMessage } from './directory';
-import { Directory, GameListing, PlayerDB, PlayerId } from '../types';
+import { MessageActionRow, MessageButton, MessageButtonStyleResolvable, MessageManager } from 'discord.js';
+import { GameListing, PlayerDB, PlayerId } from '../types';
 
-export async function postGameMessage (creatorId : PlayerId, guild : Guild, directories : Keyv<Directory>, game : GameListing) {
-  const button = new MessageActionRow()
-    .addComponents(
-      new MessageButton()
-        .setCustomId('join-game/' + creatorId)
-        .setLabel('Join Game')
-        .setStyle('SUCCESS'),
-    );
-  const newMessage = await postDirectoryMessage(guild, directories, {
-    content: game.name + '\nCreated by ' + game.creator + '\nPlayers: ' + game.current_players + '/' + game.max_players,
-    components: [button],
-  });
-  return newMessage.id;
-}
-export function makeGameMessage (creatorId: PlayerId, game: GameListing) {
+export function makeGameMessage (game: GameListing) {
   let style : MessageButtonStyleResolvable = 'SUCCESS';
   let label = 'Join Game';
   if (game.current_players >= game.max_players) {
@@ -27,7 +11,7 @@ export function makeGameMessage (creatorId: PlayerId, game: GameListing) {
   const button = new MessageActionRow()
     .addComponents(
       new MessageButton()
-        .setCustomId('join-game/' + creatorId)
+        .setCustomId('join-game/' + game.creatorId)
         .setLabel(label)
         .setStyle(style),
     );
@@ -35,6 +19,10 @@ export function makeGameMessage (creatorId: PlayerId, game: GameListing) {
     content: game.name + '\nCreated by ' + game.creator + '\nPlayers: ' + game.current_players + '/' + game.max_players,
     components: [button],
   };
+}
+
+export async function deleteGameMessage (game: GameListing, manager : MessageManager) {
+  await manager.delete(game.messageId);
 }
 
 export function addPlayerToGame (player : PlayerId, game : GameListing, playerDb : PlayerDB) {

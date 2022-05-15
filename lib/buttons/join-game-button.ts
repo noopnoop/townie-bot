@@ -20,6 +20,6 @@ export async function executeJoinGameButton (interaction : ButtonInteraction & N
   guildListings.set(messageCreator, listing);
   db.set(messageCreator, guildListings);
   if (!(interaction.message instanceof Message)) throw new Error ('bad join-game interaction: not our message');
-  interaction.message.edit(makeGameMessage(messageCreator, listing));
+  interaction.message.edit(makeGameMessage(listing));
   interaction.reply({ ephemeral:true, content:'Joined game successfully. Use the "/leave-game" command before the game begins to quit out.' });
 }

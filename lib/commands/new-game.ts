@@ -1,10 +1,8 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction } from 'discord.js';
-import Keyv from 'keyv';
-import { deleteDirectoryMessages, getDirectory } from '../types/directory';
-import { addPlayerToGame, postGameMessage } from '../types/game-listing';
-import { Directory, GameDB, GameListing, GuildId, NormalInteraction, PlayerDB, PlayerId } from '../types';
-import { addGameToDB, checkForGame, noGames } from '../types/gamedb';
+import { addPlayerToGame, makeGameMessage } from '../types/game-listing';
+import { GameDB, GameListing, GuildId, NormalInteraction, PlayerDB, PlayerId } from '../types';
+import { addGameToDB } from '../types/gamedb';
 
 function makeGameListing (players: number, gameName : string, creator: string, creatorId: PlayerId, guildId : GuildId) {
   return {
@@ -18,13 +16,7 @@ function makeGameListing (players: number, gameName : string, creator: string, c
   };
 }
 
-async function validateInteraction (interaction : CommandInteraction & NormalInteraction, directories : Keyv<Directory>, db: GameDB) {
-  const guild = interaction.guild;
-  await getDirectory(interaction.guild, directories)
-    .catch(async () => {
-      await interaction.reply({ ephemeral: true, content: 'You need to designate a channel to be a directory using the "/set-directory" command before you can make a game.' });
-      throw new Error('bad new-game interaction: no directory');
-    });
+async function validateInteraction (interaction : CommandInteraction & NormalInteraction) {
   let players = interaction.options.get('players')?.value;
   if (!(typeof players === 'number')
     || Math.floor(players) < 5
@@ -42,9 +34,7 @@ async function validateInteraction (interaction : CommandInteraction & NormalInt
     await interaction.reply({ ephemeral: true, content: 'You must give your game a name. It may be between 5 and 30 characters in length.' });
     throw new Error ('bad new-game interaction: bad game name');
   }
-  const creator = interaction.member.displayName;
-  const creatorId = interaction.member.id;
-  return { guild, players, gameName, creator, creatorId };
+  return { players, gameName };
 }
 
 export const newGameData = new SlashCommandBuilder()
@@ -61,14 +51,15 @@ export const newGameData = new SlashCommandBuilder()
       .setRequired(true),
   );
 
-export async function executeNewGame (interaction : CommandInteraction & NormalInteraction, directories : Keyv<Directory>, db : GameDB, playerDb : PlayerDB) {
-  const { guild, players, gameName, creator, creatorId } = await validateInteraction(interaction, directories, db);
+export async function executeNewGame (interaction : CommandInteraction & NormalInteraction, db : GameDB, playerDb : PlayerDB) {
+  const guild = interaction.guild;
+  const creator = interaction.member.displayName;
+  const creatorId = interaction.member.id;
+  const { players, gameName } = await validateInteraction(interaction);
   const game = (makeGameListing(players, gameName, creator, creatorId, guild.id) as unknown) as GameListing;
-  if (noGames(guild.id, db)) {
-    await deleteDirectoryMessages(guild, directories);
-  }
-  const msgId = await postGameMessage(creatorId, guild, directories, game);
-  game.messageId = msgId;
+  const gameMsg = makeGameMessage(game);
+  const msg = await interaction.channel.send(gameMsg);
+  game.messageId = msg.id;
   addGameToDB(game, guild.id, creatorId, db);
   addPlayerToGame(creatorId, game, playerDb);
   await interaction.reply({ ephemeral: true, content: `New game "${gameName}" created successfully.` });

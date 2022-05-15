@@ -1,16 +1,13 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction } from 'discord.js';
-import Keyv from 'keyv';
-import { Directory, GameDB, PlayerDB, PlayerId } from '../types';
-import { deleteDirectoryMessage } from '../types/directory';
+import { GameDB, NormalInteraction, PlayerDB, PlayerId } from '../types';
 
 export const leaveGameData = new SlashCommandBuilder()
   .setName('leave-game')
   .setDescription('Leave a game of mafia that hasn\'t started yet.');
 
-export async function executeLeaveGame (interaction : CommandInteraction, playerDb : PlayerDB, games : GameDB, directories : Keyv<Directory>) {
+export async function executeLeaveGame (interaction : CommandInteraction & NormalInteraction, playerDb : PlayerDB, games : GameDB) {
   const player = interaction.member?.user.id;
-  if (!player) throw new Error('bad leave-game interaction: no player id');
   const info = playerDb.get(player);
   if (!info) {
     await interaction.reply({ ephemeral:true, content:'You aren\'t in a game.' });
