@@ -25,10 +25,15 @@ export async function deleteGameMessage (game: GameListing, manager : MessageMan
   await manager.delete(game.messageId);
 }
 
-export function addPlayerToGame (player : PlayerId, game : GameListing, playerDb : PlayerDB) {
+export async function updateGameMessage (game: GameListing, manager: MessageManager) {
+  manager.edit(game.messageId,makeGameMessage(game));
+}
+
+export function addPlayerToGame (player : PlayerId, game : GameListing, playerDb : PlayerDB, manager : MessageManager) {
   if (game.current_players >= game.max_players) throw new Error ('couldn\'t add player to game: already at maximum capacity');
   if (game.players.find(p => p === player)) throw new Error ('couldn\'t add player to game: player already in game');
   game.players.push(player);
   game.current_players += 1;
   playerDb.set(player, [game.guildId, game.creatorId]);
+  updateGameMessage(game,manager);
 }

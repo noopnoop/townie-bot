@@ -1,13 +1,14 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction } from 'discord.js';
 import { GameDB, NormalInteraction, PlayerDB, PlayerId } from '../types';
+import { updateGameMessage } from '../types/game-listing';
 
 export const leaveGameData = new SlashCommandBuilder()
   .setName('leave-game')
   .setDescription('Leave a game of mafia that hasn\'t started yet.');
 
 export async function executeLeaveGame (interaction : CommandInteraction & NormalInteraction, playerDb : PlayerDB, games : GameDB) {
-  const player = interaction.member?.user.id;
+  const player = interaction.member.user.id;
   const info = playerDb.get(player);
   if (!info) {
     await interaction.reply({ ephemeral:true, content:'You aren\'t in a game.' });
@@ -22,5 +23,6 @@ export async function executeLeaveGame (interaction : CommandInteraction & Norma
   listing.current_players -= 1;
   guildDb.set(currentCreator, listing);
   games.set(currentGuild, guildDb);
+  updateGameMessage(listing, interaction.channel.messages);
   await interaction.reply({ ephemeral:true, content:'Left game successfully.' });
 }

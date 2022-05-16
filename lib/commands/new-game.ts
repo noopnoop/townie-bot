@@ -61,6 +61,6 @@ export async function executeNewGame (interaction : CommandInteraction & NormalI
   const msg = await interaction.channel.send(gameMsg);
   game.messageId = msg.id;
   addGameToDB(game, guild.id, creatorId, db);
-  addPlayerToGame(creatorId, game, playerDb);
+  addPlayerToGame(creatorId, game, playerDb, interaction.channel.messages);
   await interaction.reply({ ephemeral: true, content: `New game "${gameName}" created successfully.` });
 }
