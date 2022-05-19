@@ -11,7 +11,7 @@ function getCreator (interaction : ButtonInteraction) {
 
 export async function executeJoinGameButton (interaction : ButtonInteraction & NormalInteraction, db : GameDB, players : PlayerDB) {
   const guild = interaction.guild;
-  const player = interaction.member
+  const player = interaction.member;
   const messageCreator = getCreator(interaction);
   const guildListings = db.get(guild.id);
   const listing = guildListings?.get(messageCreator);

@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction } from 'discord.js';
-import { GameDB, NormalInteraction, NormalMember, PlayerDB, PlayerId } from '../types';
+import { GameDB, NormalInteraction, NormalMember, PlayerDB } from '../types';
 import { updateGameMessage } from '../types/game-listing';
 
 export const leaveGameData = new SlashCommandBuilder()
