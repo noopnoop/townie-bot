@@ -16,7 +16,7 @@ export async function executeJoinGameButton (interaction : ButtonInteraction & N
   const guildListings = db.get(guild.id);
   const listing = guildListings?.get(messageCreator);
   if (!guildListings || !listing || !checkForGame(guild.id, messageCreator, db)) throw new Error ('bad join-game interaction: no game listing');
-  addPlayerToGame(player, listing, players, interaction.channel.messages, interaction.guild.roles);
+  addPlayerToGame(player, listing, players, interaction.channel.messages, guild.roles, guild.channels);
   guildListings.set(messageCreator, listing);
   db.set(messageCreator, guildListings);
   if (!(interaction.message instanceof Message)) throw new Error ('bad join-game interaction: not our message');
