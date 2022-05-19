@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction } from 'discord.js';
-import { GameDB, NormalInteraction, PlayerDB, PlayerId } from '../types';
+import { GameDB, NormalInteraction, NormalMember, PlayerDB, PlayerId } from '../types';
 import { updateGameMessage } from '../types/game-listing';
 
 export const leaveGameData = new SlashCommandBuilder()
@@ -19,7 +19,7 @@ export async function executeLeaveGame (interaction : CommandInteraction & Norma
   const listing = guildDb?.get(currentCreator);
   playerDb.delete(player);
   if (!guildDb || !listing) throw new Error ('bad leave-game interaction: bad playerDb info');
-  listing.players.filter((p : PlayerId) => p !== player);
+  listing.players.filter((p : NormalMember) => p.id !== player);
   listing.current_players -= 1;
   guildDb.set(currentCreator, listing);
   games.set(currentGuild, guildDb);

@@ -1,5 +1,6 @@
-import { MessageActionRow, MessageButton, MessageButtonStyleResolvable, MessageManager } from 'discord.js';
-import { GameListing, PlayerDB, PlayerId } from '../types';
+import { MessageActionRow, MessageButton, MessageButtonStyleResolvable, MessageManager, Role, RoleManager } from 'discord.js';
+import { GameListing, NormalMember, PlayerDB, PlayerId } from '../types';
+import { makeGame } from './game-data';
 
 export function makeGameMessage (game: GameListing) {
   let style : MessageButtonStyleResolvable = 'SUCCESS';
@@ -29,11 +30,15 @@ export async function updateGameMessage (game: GameListing, manager: MessageMana
   manager.edit(game.messageId,makeGameMessage(game));
 }
 
-export function addPlayerToGame (player : PlayerId, game : GameListing, playerDb : PlayerDB, manager : MessageManager) {
+export async function addPlayerToGame (player : NormalMember, game : GameListing, playerDb : PlayerDB, manager : MessageManager, roleManager : RoleManager) {
   if (game.current_players >= game.max_players) throw new Error ('couldn\'t add player to game: already at maximum capacity');
-  if (game.players.find(p => p === player)) throw new Error ('couldn\'t add player to game: player already in game');
+  // change tthis next line to look in the player db instead whenever i add it back in
+  //if (game.players.find(p => p === player)) throw new Error ('couldn\'t add player to game: player already in game');
   game.players.push(player);
   game.current_players += 1;
-  playerDb.set(player, [game.guildId, game.creatorId]);
+  playerDb.set(player.id, [game.guildId, game.creatorId]);
   updateGameMessage(game,manager);
+  if (game.current_players === game.max_players) {
+    await makeGame(game, roleManager);
+  }
 }

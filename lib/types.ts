@@ -21,6 +21,7 @@ export interface NormalChannel extends TextChannel {
 export type GuildId = string;
 export type PlayerId = string;
 export type MessageId = string;
+export type ChannelId = string;
 export type GameDB = Map<GuildId, Map<PlayerId, GameListing>>;
 export type PlayerDB = Map<PlayerId, [GuildId, PlayerId]>;
 
@@ -30,7 +31,7 @@ export interface GameListing {
   name : string,
   creator : string,
   creatorId : PlayerId
-  players : string[],
+  players : NormalMember[],
   messageId : MessageId,
   guildId : GuildId
 }

@@ -53,14 +53,13 @@ export const newGameData = new SlashCommandBuilder()
 
 export async function executeNewGame (interaction : CommandInteraction & NormalInteraction, db : GameDB, playerDb : PlayerDB) {
   const guild = interaction.guild;
-  const creator = interaction.member.displayName;
-  const creatorId = interaction.member.id;
+  const creator = interaction.member;
   const { players, gameName } = await validateInteraction(interaction);
-  const game = (makeGameListing(players, gameName, creator, creatorId, guild.id) as unknown) as GameListing;
+  const game = (makeGameListing(players, gameName, creator.displayName, creator.id, guild.id) as unknown) as GameListing;
   const gameMsg = makeGameMessage(game);
   const msg = await interaction.channel.send(gameMsg);
   game.messageId = msg.id;
-  addGameToDB(game, guild.id, creatorId, db);
-  addPlayerToGame(creatorId, game, playerDb, interaction.channel.messages);
+  addGameToDB(game, guild.id, creator.id, db);
+  addPlayerToGame(creator, game, playerDb, interaction.channel.messages, guild.roles);
   await interaction.reply({ ephemeral: true, content: `New game "${gameName}" created successfully.` });
 }
