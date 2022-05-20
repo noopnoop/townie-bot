@@ -1,9 +1,16 @@
+import { roleMention } from '@discordjs/builders';
 import { GuildChannelManager, RoleManager, Permissions } from 'discord.js';
 import { ChannelId, GameListing, NormalMember } from '../types';
+import { clientId } from '../config.json';
 
 export interface GameData {
   players : [NormalMember],
   channelId : ChannelId
+}
+
+function makeGameStartMessage (roleId : string) {
+  const msg = roleMention(roleId) + 'The game of mafia has begun!';
+  return { ephemeral: true, content: msg };
 }
 
 export async function makeGame (listing: GameListing, roleManager : RoleManager, channelManager : GuildChannelManager) {
@@ -15,7 +22,7 @@ export async function makeGame (listing: GameListing, roleManager : RoleManager,
   for (const player of listing.players) {
     await player.roles.add(mafiaRole);
   }
-  await channelManager.create(gameId, {
+  const textChannel = await channelManager.create(gameId, {
     type: 'GUILD_TEXT',
     permissionOverwrites: [
       {
@@ -25,6 +32,24 @@ export async function makeGame (listing: GameListing, roleManager : RoleManager,
       {
         id: mafiaRole.id,
         allow: [ Permissions.FLAGS.SEND_MESSAGES ],
+      },
+      {
+        id: clientId,
+        allow: [ Permissions.FLAGS.SEND_MESSAGES ],
+      },
+    ],
+  });
+  await textChannel.send(makeGameStartMessage(mafiaRole.id));
+  await channelManager.create(gameId + '-voice', {
+    type: 'GUILD_VOICE',
+    permissionOverwrites: [
+      {
+        id: everyone,
+        deny: [ Permissions.FLAGS.SPEAK],
+      },
+      {
+        id: mafiaRole.id,
+        allow: [ Permissions.FLAGS.SPEAK ],
       },
     ],
   });
