@@ -1,12 +1,22 @@
 import { roleMention } from '@discordjs/builders';
 import { GuildChannelManager, RoleManager, Permissions } from 'discord.js';
-import { ChannelId, GameListing, NormalMember } from '../types';
+import { ChannelId, GameListing, NormalMember, PlayerId } from '../types';
 import { clientId } from '../config.json';
 
 export interface GameData {
   players : [NormalMember],
   channelId : ChannelId
 }
+
+export type Team = 'Mafia' | 'Bool'
+
+export interface PlayerState {
+  name : string,
+  team : Team,
+  alive : boolean
+}
+
+export type GameState = Map<PlayerId, PlayerState>
 
 function makeGameStartMessage (roleId : string) {
   const msg = roleMention(roleId) + 'The game of mafia has begun!';
