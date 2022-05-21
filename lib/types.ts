@@ -1,4 +1,5 @@
 import { Guild, GuildMember, Interaction, TextChannel } from 'discord.js';
+import { Game } from './types/game-data';
 
 // when you add the Townie to a server before you can do anything with it you have to specify a channel to act as a Directory
 // the Directory channel has a bunch of messages from Townie, one for each mafia game in progress in the guild, with a 'Join game' button and some info about the game
@@ -24,6 +25,7 @@ export type MessageId = string;
 export type ChannelId = string;
 export type Listings = Map<GuildId, Map<PlayerId, GameListing>>;
 export type PlayerDB = Map<PlayerId, [GuildId, PlayerId]>;
+export type Games = Map<PlayerId, Game>
 
 export interface GameListing {
   max_players : number,

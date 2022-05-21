@@ -1,8 +1,8 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction } from 'discord.js';
 import { addPlayerToGame, makeGameMessage } from '../types/game-listing';
-import { Listings, GameListing, GuildId, NormalInteraction, PlayerDB, PlayerId } from '../types';
-import { addGameToDB } from '../types/gamedb';
+import { Listings, GameListing, GuildId, NormalInteraction, PlayerDB, PlayerId, Games } from '../types';
+import { addGameToDB } from '../types/listings';
 
 function makeGameListing (players: number, gameName : string, creator: string, creatorId: PlayerId, guildId : GuildId) {
   return {
@@ -51,7 +51,7 @@ export const newGameData = new SlashCommandBuilder()
       .setRequired(true),
   );
 
-export async function executeNewGame (interaction : CommandInteraction & NormalInteraction, listings : Listings, playerDb : PlayerDB) {
+export async function executeNewGame (interaction : CommandInteraction & NormalInteraction, listings : Listings, playerDb : PlayerDB, games: Games) {
   const guild = interaction.guild;
   const creator = interaction.member;
   const { players, gameName } = await validateInteraction(interaction);
@@ -60,6 +60,6 @@ export async function executeNewGame (interaction : CommandInteraction & NormalI
   const msg = await interaction.channel.send(gameMsg);
   game.messageId = msg.id;
   addGameToDB(game, guild.id, creator.id, listings);
-  addPlayerToGame(creator, game, playerDb, interaction.channel.messages, guild.roles, guild.channels);
+  addPlayerToGame(creator, game, playerDb, interaction.channel.messages, guild.roles, guild.channels, games);
   await interaction.reply({ ephemeral: true, content: `New game "${gameName}" created successfully.` });
 }

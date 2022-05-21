@@ -1,6 +1,6 @@
 import { roleMention } from '@discordjs/builders';
 import { GuildChannelManager, RoleManager, Permissions } from 'discord.js';
-import { ChannelId, GameListing, NormalMember, PlayerId } from '../types';
+import { ChannelId, GameListing, Games, NormalMember, PlayerId } from '../types';
 import { clientId } from '../config.json';
 
 export interface GameData {
@@ -16,14 +16,23 @@ export interface PlayerState {
   alive : boolean
 }
 
-export type GameState = Map<PlayerId,PlayerState>
+export type Vote = PlayerId | 'Pass'
+
+export type GameState = Map<PlayerId,PlayerState>;
+
+export type Votes = Array<[PlayerId, Vote]>;
+
+export interface Game {
+  state: GameState
+  votes: Votes
+}
 
 function makeGameStartMessage (roleId : string) {
   const msg = roleMention(roleId) + 'The game of mafia has begun!';
   return { ephemeral: true, content: msg };
 }
 
-export function initialGameState (players : [NormalMember]) {
+export function initialGameState (players : NormalMember[]) : Game {
   const state : GameState = new Map();
   for (const player of players) {
     state.set(player.user.id,{
@@ -32,10 +41,14 @@ export function initialGameState (players : [NormalMember]) {
       alive: true
     });
   }
-  return state;
+  return {
+    state: state,
+    votes: new Array<[PlayerId, Vote]>()
+  }
 }
 
-export async function makeGame (listing: GameListing, roleManager : RoleManager, channelManager : GuildChannelManager) {
+export async function makeGame (listing: GameListing, roleManager : RoleManager, channelManager : GuildChannelManager, games: Games) {
+  games.set(listing.creatorId, initialGameState(listing.players));
   const gameId = 'mafia-' + listing.creatorId;
   const everyone = roleManager.everyone.id;
   const mafiaRole = await roleManager.create({
@@ -75,6 +88,7 @@ export async function makeGame (listing: GameListing, roleManager : RoleManager,
       },
     ],
   });
+  
 }
 
 // export interface GameChannel {

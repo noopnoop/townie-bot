@@ -1,7 +1,7 @@
 import { ButtonInteraction, Message } from 'discord.js';
-import { Listings, NormalInteraction, PlayerDB } from '../types';
+import { Games, Listings, NormalInteraction, PlayerDB } from '../types';
 import { addPlayerToGame, makeGameMessage } from '../types/game-listing';
-import { checkForGame } from '../types/gamedb';
+import { checkForGame } from '../types/listings';
 
 function getCreator (interaction : ButtonInteraction) {
   const creator = interaction.customId.split('/')[1];
@@ -9,14 +9,14 @@ function getCreator (interaction : ButtonInteraction) {
   return creator;
 }
 
-export async function executeJoinGameButton (interaction : ButtonInteraction & NormalInteraction, listings : Listings, players : PlayerDB) {
+export async function executeJoinGameButton (interaction : ButtonInteraction & NormalInteraction, listings : Listings, players : PlayerDB, games : Games) {
   const guild = interaction.guild;
   const player = interaction.member;
   const messageCreator = getCreator(interaction);
   const guildListings = listings.get(guild.id);
   const listing = guildListings?.get(messageCreator);
   if (!guildListings || !listing || !checkForGame(guild.id, messageCreator, listings)) throw new Error ('bad join-game interaction: no game listing');
-  addPlayerToGame(player, listing, players, interaction.channel.messages, guild.roles, guild.channels);
+  addPlayerToGame(player, listing, players, interaction.channel.messages, guild.roles, guild.channels, games);
   guildListings.set(messageCreator, listing);
   listings.set(messageCreator, guildListings);
   if (!(interaction.message instanceof Message)) throw new Error ('bad join-game interaction: not our message');

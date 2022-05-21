@@ -2,7 +2,7 @@ import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction } from 'discord.js';
 import { Listings, NormalInteraction } from '../types';
 import { deleteGameMessage } from '../types/game-listing';
-import { deleteGameFromDB } from '../types/gamedb';
+import { deleteGameFromDB } from '../types/listings';
 
 export const deleteGameData = new SlashCommandBuilder()
   .setName('delete-game')

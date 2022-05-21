@@ -1,5 +1,5 @@
 import { Client, Intents, Interaction } from 'discord.js';
-import { Listings, PlayerDB } from './types';
+import { Games, Listings, PlayerDB } from './types';
 import { token } from './config.json';
 import { executeNewGame } from './commands/new-game';
 import { executeDeleteGame } from './commands/delete-game';
@@ -11,7 +11,8 @@ const client = new Client ({ intents: [Intents.FLAGS.GUILDS] });
 
 // if you see a Keyv<Directory> in this bot- know that the keys are guild ids.
 // basically, this database maps guilds to their mafia game directories.
-const games : Listings = new Map();
+const listings : Listings = new Map();
+const games : Games = new Map();
 const players : PlayerDB = new Map();
 
 client.once('ready', () => console.log('Up and running'));
@@ -23,19 +24,19 @@ client.on('interactionCreate', async (rawInteraction : Interaction) => {
   if (interaction.isCommand()) {
     switch (interaction.commandName) {
     case 'new-game':
-      await executeNewGame(interaction, games, players).catch(err => console.error(err));
+      await executeNewGame(interaction, listings, players, games).catch(err => console.error(err));
       return;
     case 'delete-game':
-      await executeDeleteGame(interaction, games).catch(err => console.error(err));
+      await executeDeleteGame(interaction, listings).catch(err => console.error(err));
       return;
     case 'leave-game':
-      await executeLeaveGame(interaction, players, games).catch(err => console.error(err));
+      await executeLeaveGame(interaction, players, listings).catch(err => console.error(err));
       return;
     }
   } else if (interaction.isButton()) {
     switch (interaction.customId.split('/')[0]) {
     case 'join-game':
-      await executeJoinGameButton(interaction, games, players).catch(err => console.error(err));
+      await executeJoinGameButton(interaction, listings, players, games).catch(err => console.error(err));
       return;
     }
   }
