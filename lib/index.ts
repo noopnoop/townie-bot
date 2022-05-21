@@ -1,5 +1,5 @@
 import { Client, Intents, Interaction } from 'discord.js';
-import { GameDB, PlayerDB } from './types';
+import { Listings, PlayerDB } from './types';
 import { token } from './config.json';
 import { executeNewGame } from './commands/new-game';
 import { executeDeleteGame } from './commands/delete-game';
@@ -11,7 +11,7 @@ const client = new Client ({ intents: [Intents.FLAGS.GUILDS] });
 
 // if you see a Keyv<Directory> in this bot- know that the keys are guild ids.
 // basically, this database maps guilds to their mafia game directories.
-const games : GameDB = new Map();
+const games : Listings = new Map();
 const players : PlayerDB = new Map();
 
 client.once('ready', () => console.log('Up and running'));

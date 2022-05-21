@@ -1,6 +1,6 @@
-import { GameDB, GameListing, GuildId, PlayerId } from '../types';
+import { Listings, GameListing, GuildId, PlayerId } from '../types';
 
-export function addGameToDB (game : GameListing, guildId : GuildId, playerId : PlayerId, db : GameDB) {
+export function addGameToDB (game : GameListing, guildId : GuildId, playerId : PlayerId, db : Listings) {
   const previous = db.get(guildId);
   if (previous) {
     previous.set(playerId, game);
@@ -11,7 +11,7 @@ export function addGameToDB (game : GameListing, guildId : GuildId, playerId : P
   db.set(guildId, newEntry);
 }
 
-export function deleteGameFromDB (guildId: GuildId, playerId : PlayerId, db: GameDB) {
+export function deleteGameFromDB (guildId: GuildId, playerId : PlayerId, db: Listings) {
   const previous = db.get(guildId);
   if (previous) {
     previous.delete(playerId);
@@ -19,7 +19,7 @@ export function deleteGameFromDB (guildId: GuildId, playerId : PlayerId, db: Gam
   }
 }
 
-export function checkForGame (guildId : GuildId, playerId : PlayerId, db: GameDB) {
+export function checkForGame (guildId : GuildId, playerId : PlayerId, db: Listings) {
   const guildInfo = db.get(guildId);
   if (!guildInfo) return false;
   const gameInfo = guildInfo.get(playerId);
@@ -27,7 +27,7 @@ export function checkForGame (guildId : GuildId, playerId : PlayerId, db: GameDB
   return true;
 }
 
-export function noGames (guildId : GuildId, db: GameDB) {
+export function noGames (guildId : GuildId, db: Listings) {
   const info = db.get(guildId);
   if (!info || info.size === 0) {
     return true;

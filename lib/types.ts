@@ -22,7 +22,7 @@ export type GuildId = string;
 export type PlayerId = string;
 export type MessageId = string;
 export type ChannelId = string;
-export type GameDB = Map<GuildId, Map<PlayerId, GameListing>>;
+export type Listings = Map<GuildId, Map<PlayerId, GameListing>>;
 export type PlayerDB = Map<PlayerId, [GuildId, PlayerId]>;
 
 export interface GameListing {

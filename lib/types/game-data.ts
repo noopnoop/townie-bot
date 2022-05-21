@@ -8,7 +8,7 @@ export interface GameData {
   channelId : ChannelId
 }
 
-export type Team = 'Mafia' | 'Bool'
+export type Team = 'Mafia' | 'Town'
 
 export interface PlayerState {
   name : string,
@@ -16,11 +16,23 @@ export interface PlayerState {
   alive : boolean
 }
 
-export type GameState = Map<PlayerId, PlayerState>
+export type GameState = Map<PlayerId,PlayerState>
 
 function makeGameStartMessage (roleId : string) {
   const msg = roleMention(roleId) + 'The game of mafia has begun!';
   return { ephemeral: true, content: msg };
+}
+
+export function initialGameState (players : [NormalMember]) {
+  const state : GameState = new Map();
+  for (const player of players) {
+    state.set(player.user.id,{
+      name: player.displayName,
+      team: 'Town',
+      alive: true
+    });
+  }
+  return state;
 }
 
 export async function makeGame (listing: GameListing, roleManager : RoleManager, channelManager : GuildChannelManager) {
