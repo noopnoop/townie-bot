@@ -9,8 +9,6 @@ import { executeLeaveGame } from './commands/leave-game';
 
 const client = new Client ({ intents: [Intents.FLAGS.GUILDS] });
 
-// if you see a Keyv<Directory> in this bot- know that the keys are guild ids.
-// basically, this database maps guilds to their mafia game directories.
 const listings : Listings = new Map();
 const games : Games = new Map();
 const players : PlayerDB = new Map();
