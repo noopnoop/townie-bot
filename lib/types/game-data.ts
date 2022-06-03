@@ -1,5 +1,5 @@
-import { roleMention } from '@discordjs/builders';
-import { GuildChannelManager, RoleManager, Permissions, TextChannel, VoiceChannel, Role } from 'discord.js';
+import { roleMention, userMention } from '@discordjs/builders';
+import { GuildChannelManager, RoleManager, Permissions, TextChannel, VoiceChannel, Role, MessagePayload, MessageOptions } from 'discord.js';
 import { ChannelId, GameListing, Games, NormalMember, PlayerId } from '../types';
 import { clientId } from '../config.json';
 import { exec } from 'child_process'
@@ -38,9 +38,30 @@ export interface Game {
   votes: Vote[]
 }
 
-function makeGameStartMessage (roleId : string) {
-  const msg = roleMention(roleId) + 'The game of mafia has begun!';
-  return { ephemeral: true, content: msg };
+async function postGameMessage (game : Game, message : string | MessagePayload | MessageOptions, notify: boolean) {
+  let mentions = ''
+  if (notify) {
+    mentions = roleMention(game.role.id);
+  }
+  await game.textChannel.send(mentions + message);
+}
+
+async function postSecretMessage (game : Game, message : string | MessagePayload | MessageOptions, notify: boolean) {
+  let mentions = '';
+  for (const [player, state] of game.state) { //likely a better spot for this, needs testing as well
+    if (state.team === 'Mafia' && notify) {
+      mentions += userMention(player)
+    }
+  }
+  await game.secretTextChannel.send(mentions + message);
+}
+
+async function postGameStartMessage (game : Game) {
+  await postGameMessage(game, 'The game of mafia has begun! It is currently night-time. Once the mafia have decided on their first target, this channel will open up for voting.', true)
+}
+
+async function postSecretStartMessage (game:Game) {
+  await postSecretMessage(game, 'This is a secret channel that only mafia members have access to. Vote here with "/vote" to decide on your first kill.', true);
 }
 
 export function initialGameState (listing : GameListing, textChannel: TextChannel, secretTextChannel : TextChannel, voiceChannel: VoiceChannel, role : Role) : Game {
@@ -114,6 +135,10 @@ export async function makeChannels (gameId : string, everyone : Role, channelMan
         id: everyone.id,
         deny: [ Permissions.FLAGS.VIEW_CHANNEL ],
       },
+      {
+        id: clientId,
+        allow: [Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.SEND_MESSAGES]
+      }
     ]
   });
   const voiceChannel = await channelManager.create(gameId + '-voice', {
@@ -140,8 +165,9 @@ export async function makeGame (listing: GameListing, roleManager : RoleManager,
     //await sendRoleMessage(player); TURN THIS BACK ON LATER!!!!
   }
   const {textChannel, voiceChannel, secretTextChannel} = await makeChannels(gameName,everyone,channelManager);
-  await textChannel.send(makeGameStartMessage(mafiaRole.id));
   const newGame = initialGameState(listing,textChannel, secretTextChannel, voiceChannel, mafiaRole);
+  postGameStartMessage(newGame);
+  postSecretStartMessage(newGame);
   await setPermissionsBasedOnTime('Day', newGame);
   games.set(listing.creatorId, newGame);
   console.log(gameToJson(newGame));
